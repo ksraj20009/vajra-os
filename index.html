@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vajra OS — India's Privacy-First AI-Powered OS</title>
-    <meta name="description" content="Vajra OS — India's privacy-first, AI-powered operating system. Download free, boot anywhere.">
+    <meta name="description" content="Vajra OS — A complete standalone operating system. India's privacy-first, AI-powered OS. Boot from USB, no installation required.">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a1a; color: #e0e0e0; overflow-x: hidden; }
@@ -12,8 +12,9 @@
         .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 50% 30%, rgba(255, 165, 0, 0.15), transparent 50%); }
         .logo { font-size: 4rem; font-weight: 800; background: linear-gradient(135deg, #FF9933, #ffffff, #138808); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; z-index: 1; }
         .tagline { font-size: 1.3rem; color: #FF9933; margin-bottom: 0.5rem; z-index: 1; }
-        .sanskrit { font-size: 1.1rem; color: #aaa; margin-bottom: 2rem; z-index: 1; font-style: italic; }
-        .release-badge { display: inline-block; padding: 0.3rem 1rem; background: rgba(19, 136, 8, 0.2); color: #138808; border: 1px solid #138808; border-radius: 20px; font-size: 0.85rem; margin-bottom: 1rem; z-index: 1; }
+        .sanskrit { font-size: 1.1rem; color: #aaa; margin-bottom: 1rem; z-index: 1; font-style: italic; }
+        .release-badge { display: inline-block; padding: 0.3rem 1rem; background: rgba(19, 136, 8, 0.2); color: #138808; border: 1px solid #138808; border-radius: 20px; font-size: 0.85rem; margin-bottom: 1.5rem; z-index: 1; }
+        .os-badge { display: inline-block; padding: 0.3rem 1rem; background: rgba(255, 153, 51, 0.15); color: #FF9933; border: 1px solid rgba(255, 153, 51, 0.3); border-radius: 20px; font-size: 0.85rem; margin-bottom: 1rem; z-index: 1; }
         .downloads { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; z-index: 1; margin-bottom: 2rem; }
         .btn { padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: transform 0.2s, box-shadow 0.2s; }
         .btn-primary { background: linear-gradient(135deg, #FF9933, #FF6600); color: #fff; box-shadow: 0 4px 20px rgba(255, 153, 51, 0.4); }
@@ -33,7 +34,9 @@
         .card p { color: #bbb; line-height: 1.6; }
         .install { padding: 4rem 2rem; max-width: 800px; margin: 0 auto; }
         .install h2 { color: #FF9933; margin-bottom: 1.5rem; }
+        .install h3 { color: #FF9933; margin: 1.5rem 0 0.5rem; }
         .code { background: #111; border: 1px solid #333; border-radius: 8px; padding: 1rem; font-family: 'Courier New', monospace; color: #0f0; margin: 1rem 0; overflow-x: auto; white-space: pre; }
+        .note { color: #888; font-size: 0.9rem; margin: 0.5rem 0; font-style: italic; }
         footer { text-align: center; padding: 2rem; color: #666; border-top: 1px solid rgba(255, 255, 255, 0.05); }
         .badge { display: inline-block; padding: 0.2rem 0.8rem; background: rgba(19, 136, 8, 0.2); color: #138808; border-radius: 20px; font-size: 0.85rem; margin-top: 0.5rem; }
     </style>
@@ -43,54 +46,59 @@
         <div class="logo">Vajra OS</div>
         <div class="tagline">Vajra OS 1.0 — India's Privacy-First AI-Powered OS</div>
         <div class="sanskrit">Dharmo Rakshati Rakshitah</div>
+        <div class="os-badge">Complete Standalone Operating System</div>
         <div class="release-badge">v1.0.0 Released!</div>
         <div class="downloads">
             <a href="https://github.com/ksraj20009/vajra-os/releases/tag/v1.0.0" class="btn btn-primary">Download v1.0.0</a>
             <a href="https://github.com/ksraj20009/vajra-os" class="btn btn-secondary">View on GitHub</a>
         </div>
         <div class="stats">
-            <div class="stat"><div class="num">9</div><div class="label">Debian Packages</div></div>
-            <div class="stat"><div class="num">293+</div><div class="label">Tools</div></div>
+            <div class="stat"><div class="num">293+</div><div class="label">Built-in Tools</div></div>
             <div class="stat"><div class="num">10</div><div class="label">Indian Languages</div></div>
+            <div class="stat"><div class="num">9</div><div class="label">Packages</div></div>
             <div class="stat"><div class="num">FREE</div><div class="label">Forever</div></div>
         </div>
     </div>
     <div class="features">
         <h2>Why Vajra OS?</h2>
         <div class="grid">
-            <div class="card"><h3>Privacy First</h3><p>No tracking, no telemetry, no cloud dependencies. Tor integration for anonymous browsing. Your data stays on your machine.</p></div>
-            <div class="card"><h3>Buddhi AI</h3><p>Built-in AI assistant with voice commands and agentic capabilities. Runs locally, no internet required for core functions.</p></div>
+            <div class="card"><h3>Complete Operating System</h3><p>Vajra OS is a full standalone OS — not an app, not a plugin. Boot it from USB on any computer. It has its own kernel, desktop, AI assistant, and tools.</p></div>
+            <div class="card"><h3>Privacy First</h3><p>No tracking, no telemetry, no cloud dependencies. Tor integration for anonymous browsing. Your data never leaves your machine.</p></div>
+            <div class="card"><h3>Buddhi AI (बुद्धि)</h3><p>Built-in AI assistant with voice commands and agentic capabilities. Runs 100% locally — no internet required.</p></div>
             <div class="card"><h3>Indian at Core</h3><p>GST calculator, Panchang, Vedic mathematics, Ayurveda health tips, festival calendar, IRCTC train status — all built in.</p></div>
             <div class="card"><h3>Beginner and Pro Modes</h3><p>Beginner mode has safety guardrails that block dangerous commands. Pro mode gives full access for advanced users.</p></div>
             <div class="card"><h3>10 Indian Languages</h3><p>Hindi, Tamil, Bengali, Gujarati, Punjabi, Kannada, Telugu, Malayalam, Marathi, Sanskrit — full font and input support.</p></div>
-            <div class="card"><h3>Cybersecurity Tools</h3><p>Pentesting tools with ethical usage guides. Network scanner, vulnerability checker, firewall manager, intrusion detection.</p></div>
         </div>
     </div>
     <div class="install">
-        <h2>Quick Install (APT)</h2>
+        <h2>How to Install</h2>
+
+        <h3>1. Download ISO — Boot Vajra OS (Recommended)</h3>
+        <p>Download the ISO from the release page and burn it to a USB drive. Boot any computer from USB — no installation needed.</p>
+        <div class="code">dd if=vajra-os-1.0-amd64.iso of=/dev/sdX bs=4M status=progress
+
+# Or use Rufus on Windows: https://rufus.ie</div>
+        <p class="note">Vajra OS runs completely from USB. You don't need to install anything on your hard drive.</p>
+
+        <h3>2. Try with Docker (No reboot needed)</h3>
+        <div class="code">docker import vajra-rootfs.tar.gz vajra-os
+docker run -it vajra-os /bin/bash</div>
+
+        <h3>3. Install Vajra tools on existing Linux (Optional)</h3>
+        <p class="note">This installs Vajra tools on your existing Debian/Ubuntu system. It does NOT replace your OS.</p>
         <div class="code">curl -fsSL https://ksraj20009.github.io/vajra-os/apt-repo/vajra-archive-keyring.asc | gpg --dearmor -o /usr/share/keyrings/vajra-archive-keyring.gpg
 
 echo "deb [signed-by=/usr/share/keyrings/vajra-archive-keyring.gpg] https://ksraj20009.github.io/vajra-os/apt-repo vajra main" | sudo tee /etc/apt/sources.list.d/vajra.list
 
 sudo apt update
 sudo apt install vajra-core vajra-buddhi-ai vajra-security-center</div>
-        <h2>APT Packages</h2>
-        <div class="code">vajra-core            - Core OS utilities (process, memory, filesystem managers)
-vajra-buddhi-ai       - AI assistant with local processing
-vajra-security-center - Security scanning, firewall, intrusion detection
-vajra-control-center  - System settings and configuration
-vajra-package-manager - Package management frontend
-vajra-update-manager  - System update manager
-vajra-keyring         - GPG repository signing key
-vajra-desktop         - Desktop environment meta-package (Xfce4)
-vajra-wallpapers      - Official Vajra OS wallpapers</div>
     </div>
     <footer>
-        <p>Vajra OS — Open Source — MIT License</p>
+        <p>Vajra OS — Complete Operating System — MIT License</p>
         <p><a href="https://github.com/ksraj20009/vajra-os" style="color:#FF9933">github.com/ksraj20009/vajra-os</a></p>
         <p>Dharmo Rakshati Rakshitah — Dharma protects those who protect it</p>
         <span class="badge">Made in India</span>
     </footer>
 </body>
 </html>
-<!-- v1.0.0 -->
+<!-- v1.0.0 standalone -->
