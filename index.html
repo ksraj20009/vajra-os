@@ -13,12 +13,17 @@
         .logo { font-size: 4rem; font-weight: 800; background: linear-gradient(135deg, #FF9933, #ffffff, #138808); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; z-index: 1; }
         .tagline { font-size: 1.3rem; color: #FF9933; margin-bottom: 0.5rem; z-index: 1; }
         .sanskrit { font-size: 1.1rem; color: #aaa; margin-bottom: 2rem; z-index: 1; font-style: italic; }
+        .release-badge { display: inline-block; padding: 0.3rem 1rem; background: rgba(19, 136, 8, 0.2); color: #138808; border: 1px solid #138808; border-radius: 20px; font-size: 0.85rem; margin-bottom: 1rem; z-index: 1; }
         .downloads { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; z-index: 1; margin-bottom: 2rem; }
         .btn { padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: transform 0.2s, box-shadow 0.2s; }
         .btn-primary { background: linear-gradient(135deg, #FF9933, #FF6600); color: #fff; box-shadow: 0 4px 20px rgba(255, 153, 51, 0.4); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(255, 153, 51, 0.6); }
         .btn-secondary { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
         .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        .stats { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; padding: 2rem; z-index: 1; }
+        .stat { text-align: center; }
+        .stat .num { font-size: 2.5rem; font-weight: 800; color: #FF9933; }
+        .stat .label { color: #aaa; font-size: 0.9rem; }
         .features { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
         .features h2 { text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: #FF9933; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
@@ -26,13 +31,9 @@
         .card:hover { border-color: #FF9933; }
         .card h3 { color: #FF9933; margin-bottom: 0.5rem; font-size: 1.3rem; }
         .card p { color: #bbb; line-height: 1.6; }
-        .stats { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; padding: 2rem; z-index: 1; }
-        .stat { text-align: center; }
-        .stat .num { font-size: 2.5rem; font-weight: 800; color: #FF9933; }
-        .stat .label { color: #aaa; font-size: 0.9rem; }
         .install { padding: 4rem 2rem; max-width: 800px; margin: 0 auto; }
         .install h2 { color: #FF9933; margin-bottom: 1.5rem; }
-        .code { background: #111; border: 1px solid #333; border-radius: 8px; padding: 1rem; font-family: 'Courier New', monospace; color: #0f0; margin: 1rem 0; overflow-x: auto; }
+        .code { background: #111; border: 1px solid #333; border-radius: 8px; padding: 1rem; font-family: 'Courier New', monospace; color: #0f0; margin: 1rem 0; overflow-x: auto; white-space: pre; }
         footer { text-align: center; padding: 2rem; color: #666; border-top: 1px solid rgba(255, 255, 255, 0.05); }
         .badge { display: inline-block; padding: 0.2rem 0.8rem; background: rgba(19, 136, 8, 0.2); color: #138808; border-radius: 20px; font-size: 0.85rem; margin-top: 0.5rem; }
     </style>
@@ -42,12 +43,13 @@
         <div class="logo">Vajra OS</div>
         <div class="tagline">Vajra OS 1.0 — India's Privacy-First AI-Powered OS</div>
         <div class="sanskrit">Dharmo Rakshati Rakshitah</div>
+        <div class="release-badge">v1.0.0 Released!</div>
         <div class="downloads">
-            <a href="https://github.com/ksraj20009/vajra-os/releases" class="btn btn-primary">Download ISO</a>
+            <a href="https://github.com/ksraj20009/vajra-os/releases/tag/v1.0.0" class="btn btn-primary">Download v1.0.0</a>
             <a href="https://github.com/ksraj20009/vajra-os" class="btn btn-secondary">View on GitHub</a>
         </div>
         <div class="stats">
-            <div class="stat"><div class="num">42MB</div><div class="label">ISO Size</div></div>
+            <div class="stat"><div class="num">9</div><div class="label">Debian Packages</div></div>
             <div class="stat"><div class="num">293+</div><div class="label">Tools</div></div>
             <div class="stat"><div class="num">10</div><div class="label">Indian Languages</div></div>
             <div class="stat"><div class="num">FREE</div><div class="label">Forever</div></div>
@@ -65,22 +67,28 @@
         </div>
     </div>
     <div class="install">
-        <h2>Quick Install</h2>
-        <div class="code">dd if=vajra-os-1.0-amd64.iso of=/dev/sdX bs=4M status=progress
-sync
-qemu-system-x86_64 -cdrom vajra-os-1.0-amd64.iso -m 512
-docker import vajra-os-rootfs.tar vajra-os:1.0
-docker run -it vajra-os:1.0</div>
-        <h2>APT Repository</h2>
-        <div class="code">curl -fsSL https://vajra-os.vercel.app/apt-repo/vajra-archive-keyring.asc | gpg --dearmor -o /usr/share/keyrings/vajra-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/vajra-archive-keyring.gpg] https://vajra-os.vercel.app/apt-repo vajra main" | sudo tee /etc/apt/sources.list.d/vajra.list
+        <h2>Quick Install (APT)</h2>
+        <div class="code">curl -fsSL https://ksraj20009.github.io/vajra-os/apt-repo/vajra-archive-keyring.asc | gpg --dearmor -o /usr/share/keyrings/vajra-archive-keyring.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/vajra-archive-keyring.gpg] https://ksraj20009.github.io/vajra-os/apt-repo vajra main" | sudo tee /etc/apt/sources.list.d/vajra.list
+
 sudo apt update
 sudo apt install vajra-core vajra-buddhi-ai vajra-security-center</div>
+        <h2>APT Packages</h2>
+        <div class="code">vajra-core            - Core OS utilities (process, memory, filesystem managers)
+vajra-buddhi-ai       - AI assistant with local processing
+vajra-security-center - Security scanning, firewall, intrusion detection
+vajra-control-center  - System settings and configuration
+vajra-package-manager - Package management frontend
+vajra-update-manager  - System update manager
+vajra-keyring         - GPG repository signing key
+vajra-desktop         - Desktop environment meta-package (Xfce4)
+vajra-wallpapers      - Official Vajra OS wallpapers</div>
     </div>
     <footer>
-        <p>Vajra OS — Open Source - MIT License</p>
+        <p>Vajra OS — Open Source — MIT License</p>
         <p><a href="https://github.com/ksraj20009/vajra-os" style="color:#FF9933">github.com/ksraj20009/vajra-os</a></p>
-        <p>Dharmo Rakshati Rakshitah - Dharma protects those who protect it</p>
+        <p>Dharmo Rakshati Rakshitah — Dharma protects those who protect it</p>
         <span class="badge">Made in India</span>
     </footer>
 </body>
