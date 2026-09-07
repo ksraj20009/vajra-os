@@ -1,109 +1,113 @@
 # वज्र OS — Vajra OS
 
-**India's Privacy-First, AI-Powered Operating System**
+### India's Privacy-First, AI-Powered Operating System
 
-धर्मो रक्षति रक्षितः · Dharmo Rakshati Rakshitah · Dharma protects those who protect it
+**धर्मो रक्षति रक्षितः · Dharmo Rakshati Rakshitah**
 
-[![Made in India](https://img.shields.io/badge/Made%20in-India-orange)](https://github.com/ksraj20009/vajra-os)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![Website](https://img.shields.io/badge/Website-Live-blue)](https://ksraj20009.github.io/vajra-os/)
+---
+
+**Vajra OS is a complete, standalone operating system** — not a plugin, not an app, not an Ubuntu extension. It boots from USB, runs on bare metal, and comes with its own kernel, desktop environment, AI assistant, and 293+ built-in tools.
 
 ## Download
 
-- **Website**: https://ksraj20009.github.io/vajra-os/
-- **Releases**: https://github.com/ksraj20009/vajra-os/releases
-- **ISO**: 42 MB, bootable on BIOS + UEFI
+**Latest Release:** [v1.0.0](https://github.com/ksraj20009/vajra-os/releases/tag/v1.0.0)
 
-## What is Vajra OS?
+**Website:** [ksraj20009.github.io/vajra-os](https://ksraj20009.github.io/vajra-os/)
 
-Vajra OS is a complete operating system built for India — privacy-first, AI-powered, and 100% free. No tracking, no telemetry, no cloud dependencies. Your data stays on your machine.
+| Method | Description |
+|--------|-------------|
+| **ISO (Recommended)** | Bootable USB — complete OS, no installation needed |
+| **Docker** | Try without rebooting |
+| **APT (Optional)** | Install Vajra tools on existing Linux |
 
 ## Features
 
-- **Privacy First** — No tracking, no telemetry. Tor integration for anonymous browsing.
-- **Buddhi AI (बुद्धि)** — Built-in AI assistant with voice commands and agentic capabilities. Runs locally.
-- **Indian at Core** — GST calculator, Panchang, Vedic mathematics, Ayurveda health tips, festival calendar, IRCTC train status.
-- **Beginner & Pro Modes** — Safety guardrails for beginners, full access for advanced users.
-- **10 Indian Languages** — Hindi, Tamil, Bengali, Gujarati, Punjabi, Kannada, Telugu, Malayalam, Marathi, Sanskrit.
-- **Cybersecurity Tools** — Pentesting tools with ethical usage guides.
-- **293+ Commands** — 14 core OS tools + 279 utility scripts + BusyBox 396 applets.
+- **Complete OS** — Custom kernel, desktop, file system, package manager
+- **Buddhi AI (बुद्धि)** — Built-in AI assistant, runs 100% locally
+- **Privacy First** — No tracking, no telemetry, Tor integration
+- **Indian at Core** — GST, Panchang, Vedic math, Ayurveda, IRCTC
+- **Beginner & Pro Modes** — Safety guardrails for new users
+- **10 Indian Languages** — Hindi, Tamil, Bengali, Gujarati, Punjabi, Kannada, Telugu, Malayalam, Marathi, Sanskrit
+- **Cybersecurity Tools** — Pentesting suite with ethical usage guides
 
 ## Quick Start
 
 ```bash
-# Flash ISO to USB and boot
+# Download and burn ISO to USB
 dd if=vajra-os-1.0-amd64.iso of=/dev/sdX bs=4M status=progress
 
-# Test in QEMU
-qemu-system-x86_64 -cdrom vajra-os-1.0-amd64.iso -m 512
-
-# Install Vajra packages on Debian/Ubuntu
-curl -fsSL https://ksraj20009.github.io/vajra-os/apt-repo/vajra-archive-keyring.asc | gpg --dearmor -o /usr/share/keyrings/vajra-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/vajra-archive-keyring.gpg] https://ksraj20009.github.io/vajra-os/apt-repo vajra main" | sudo tee /etc/apt/sources.list.d/vajra.list
-sudo apt update
-sudo apt install vajra-core vajra-buddhi-ai vajra-security-center
+# Boot from USB — that's it!
 ```
-
-## ISO Contents
-
-| Component | Count | Size |
-|-----------|-------|------|
-| Linux Kernel | 6.6.142 | 10.4 MB |
-| Kernel modules | 922 | 17 MB |
-| BusyBox applets | 396 | 1.4 MB |
-| Vajra core tools | 16 | 250 KB |
-| Utility scripts | 279 | 2 MB |
-| Buddhi AI | 1 | 49 KB |
-| **Total ISO** | | **42 MB** |
 
 ## Repository Structure
 
 ```
 vajra-os/
-├── core/           — 16 OS management tools (process, memory, security, etc.)
-├── packaging/      — Debian package builds + GPG key + APT repo
-├── iso/            — ISO builder + QEMU test script
-├── live-build/     — Full desktop ISO config (Xfce + Calamares)
-├── installer/      — Calamares installer config
-├── desktop/        — Xfce, LightDM, fontconfig, IBus configs
-├── systemd/        — Service files (boot check, festival, Ayurveda timers)
-├── polkit/         — Beginner/Pro mode safety rules
-├── system/         — Network, audio, Xorg, motd configs
-├── branding/       — GRUB theme, wallpaper
-├── docker/         — Dockerfile + rootfs
-├── web/            — Landing page (deployed on GitHub Pages)
-├── apt-repo/       — APT repository (hosted on GitHub Pages)
-└── docs/           — Installation guide
+├── core/           → 16 core OS tools (process, memory, filesystem managers)
+├── ai/             → Buddhi AI assistant
+├── packaging/      → Debian package builds + GPG signing key
+├── iso/            → Bootable ISO builder scripts
+├── installer/      → Calamares installer configuration
+├── live-build/     → Full desktop ISO build config
+├── docker/         → Docker rootfs
+├── branding/       → GRUB theme, wallpapers
+├── desktop/        → Desktop environment configs
+├── system/         → Login banners, system configs
+├── systemd/         → Boot services, timers
+├── polkit/         → Beginner/Pro mode policies
+├── web/             → Landing page (deployed to GitHub Pages)
+├── apt-repo/       → APT repository metadata
+├── kernel/         → Kernel module configs
+├── security/       → Cybersecurity tools
+├── privacy/         → Tor, VPN configs
+├── network/        → Network management
+├── locale/         → Indian language support
+├── unique/         → GST, Panchang, Ayurveda, Vedic math, IRCTC
+├── finance/        → Financial tools
+├── education/      → Educational tools
+├── accessibility/  → Accessibility tools
+├── apps/           → Built-in applications
+├── audio/          → Audio system configs
+├── files/          → File management tools
+├── graphics/       → Graphics tools
+├── settings/       → System settings
+├── developer/      → Development tools
+├── devops/         → DevOps tools
+├── infrastructure/ → Infrastructure management
+├── creative/       → Creative tools
+├── social/         → Communication tools
+├── gaming/         → Gaming tools
+├── scripts/        → Utility scripts
+├── docs/           → Documentation
+└── .github/        → CI/CD workflows (ISO build, Pages deploy, Release)
 ```
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
-| vajra-core | 8 OS managers (process, memory, filesystem, device, etc.) |
-| vajra-buddhi-ai | Buddhi AI assistant (बुद्धि) |
-| vajra-security-center | Firewall, IDS, security audit |
-| vajra-control-center | 12-section settings panel |
-| vajra-package-manager | App store with permission review |
-| vajra-update-manager | System update manager with rollback |
-| vajra-keyring | GPG key for package verification |
-| vajra-desktop | Xfce desktop meta-package |
-| vajra-wallpapers | Default wallpaper pack |
+| vajra-core | Core OS utilities |
+| vajra-buddhi-ai | AI assistant |
+| vajra-security-center | Security tools |
+| vajra-control-center | System settings |
+| vajra-package-manager | Package manager |
+| vajra-update-manager | Update manager |
+| vajra-keyring | GPG signing key |
+| vajra-desktop | Desktop meta-package |
+| vajra-wallpapers | Official wallpapers |
 
-## Building from Source
+## Documentation
 
-See [BUILD.md](BUILD.md) for complete instructions.
+- [INSTALL.md](INSTALL.md) — Installation guide
+- [BUILD.md](BUILD.md) — Build from source
+- [RELEASE_NOTES.md](RELEASE_NOTES.md) — Release history
 
 ## License
 
-MIT License — Free forever.
+MIT License — Free and Open Source
 
-## Links
-
-- **Website**: https://ksraj20009.github.io/vajra-os/
-- **GitHub**: https://github.com/ksraj20009/vajra-os
-- **Issues**: https://github.com/ksraj20009/vajra-os/issues
+## Made in India 🇮🇳
 
 ---
 
-(c) 2026 Vajra OS Project · Made in India
+*Dharma protects those who protect it.*
