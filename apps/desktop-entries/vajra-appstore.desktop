@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=Vajra App Store
+Name[hi]=वज्र ऐप स्टोर
+Comment=Install apps with full transparency
+Comment[hi]=पूर्ण पारदर्शिता के साथ ऐप्स इंस्टॉल करें
+Exec=/opt/vajra/bin/vajra-appstore
+Icon=software-store
+Terminal=true
+Type=Application
+Categories=System;PackageManager;
+Keywords=store;install;apps;software;
