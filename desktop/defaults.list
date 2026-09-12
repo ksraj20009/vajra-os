@@ -1,0 +1,26 @@
+[Default Applications]
+text/plain=mousepad.desktop
+text/html=qutebrowser.desktop
+application/pdf=zathura.desktop
+image/jpeg=eog.desktop
+image/png=eog.desktop
+image/gif=eog.desktop
+image/svg+xml=eog.desktop
+image/bmp=eog.desktop
+image/tiff=eog.desktop
+video/mp4=parole.desktop
+video/x-avi=parole.desktop
+audio/mpeg=parole.desktop
+audio/ogg=parole.desktop
+audio/wav=parole.desktop
+application/zip=xarchiver.desktop
+application/x-tar=xarchiver.desktop
+application/x-bzip2=xarchiver.desktop
+application/x-gzip=xarchiver.desktop
+application/x-xz=xarchiver.desktop
+application/x-7z-compressed=xarchiver.desktop
+application/x-rar=xarchiver.desktop
+inode/directory=thunar.desktop
+x-scheme-handler/http=qutebrowser.desktop
+x-scheme-handler/https=qutebrowser.desktop
+x-scheme-handler/mailto=thunderbird.desktop
