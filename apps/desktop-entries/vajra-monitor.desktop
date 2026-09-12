@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Vajra System Monitor
+Name[hi]=वज्र सिस्टम मॉनिटर
+Comment=Monitor CPU, memory, and processes
+Exec=/opt/vajra/bin/vajra-monitor
+Icon=utilities-system-monitor
+Terminal=true
+Type=Application
+Categories=System;Monitor;
+Keywords=monitor;system;cpu;memory;task;manager;
