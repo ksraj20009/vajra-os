@@ -1,0 +1,29 @@
+# /etc/cron.d/vajra-maintenance — Vajra OS scheduled maintenance
+# धर्मो रक्षति रक्षितः
+
+# Daily at 3:30 AM — clean temp files
+30 3 * * * root find /tmp -type f -atime +7 -delete 2>/dev/null
+
+# Daily at 4:00 AM — clean package cache
+0 4 * * * root apt-get clean 2>/dev/null
+
+# Weekly Sunday 4:30 AM — filesystem check (read-only)
+30 4 * * 0 root touch /force_fsck 2>/dev/null
+
+# Daily at 5:00 AM — security scan (if vajra-security-center installed)
+0 5 * * * root /opt/vajra/bin/vajra-security-scan --quick 2>/dev/null
+
+# Every 6 hours — check for Vajra OS updates
+0 */6 * * * root /opt/vajra/bin/vajra-update-checker --quiet 2>/dev/null
+
+# Daily at 6:00 AM — Ayurveda daily tip notification
+0 6 * * * vajra /opt/vajra/bin/ayurveda-reminder --daily 2>/dev/null
+
+# Daily at 7:00 AM — Panchang / festival notification
+0 7 * * * vajra /opt/vajra/bin/festival-reminder --daily 2>/dev/null
+
+# Monthly 1st at 2:00 AM — rotate logs manually if logrotate fails
+0 2 1 * * root logrotate -f /etc/logrotate.conf 2>/dev/null
+
+# Daily — update locate database
+0 6 * * * root updatedb 2>/dev/null
