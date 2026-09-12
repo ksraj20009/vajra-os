@@ -1,0 +1,26 @@
+#!/bin/bash
+# Vajra Terminal — Vajra OS terminal emulator wrapper
+# Starts a bash shell with Vajra branding and beginner-mode guardrails
+
+VERSION="1.0"
+MODE=$(cat /etc/vajra-mode 2>/dev/null || echo "beginner")
+
+# Tricolor prompt
+export PS1='\[\e[1;33m\]वज्र\[\e[0m\] \[\e[1;37m\]\u@\h\[\e[0m\]:\[\e[1;32m\]\w\[\e[0m\]$ '
+
+# Welcome banner
+if [ "$1" != "--no-banner" ]; then
+    echo -e "\e[1;33m    वज्र OS $VERSION \e[0m — Vajra Terminal"
+    echo -e "\e[1;37m    Mode: ${MODE^} \e[0m"
+    echo -e "\e[1;32m    Dharmo Rakshati Rakshitah\e[0m"
+    echo ""
+fi
+
+# Beginner mode: warn on dangerous commands
+if [ "$MODE" = "beginner" ]; then
+    echo -e "\e[0;33m[Beginner Mode] Dangerous commands are guarded. Type 'vajra-mode pro' to switch.\e[0m"
+    echo ""
+fi
+
+# Run shell
+exec /bin/bash --rcfile /etc/vajra-terminal-rc
