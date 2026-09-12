@@ -1,0 +1,14 @@
+# /etc/pam.d/login — Vajra OS PAM login config
+auth       required     pam_securetty.so
+auth       requisite    pam_nologin.so
+auth       include      common-auth
+auth       optional     pam_lastlog.so
+account    requisite    pam_nologin.so
+account    include      common-account
+password   include      common-password
+session    required     pam_selinux.so close
+session    required     pam_loginuid.so
+session    include      common-session
+session    optional     pam_motd.so motd=/etc/motd
+session    optional     pam_mail.so standard
+session    required     pam_selinux.so open
