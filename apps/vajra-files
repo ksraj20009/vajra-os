@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Vajra File Manager — File browser with Indian-language filenames support"""
+import os, sys, subprocess, shutil
+
+VERSION = "1.0"
+
+def get_icon(path, is_dir):
+    if is_dir: return "[DIR] "
+    ext = os.path.splitext(path)[1].lower()
+    icons = {
+        '.txt': '📄', '.md': '📄', '.pdf': '📕', '.jpg': '🖼️', '.png': '🖼️',
+        '.mp3': '🎵', '.mp4': '🎬', '.zip': '📦', '.tar': '📦', '.gz': '📦',
+        '.deb': '📦', '.py': '🐍', '.sh': '⚡', '.iso': '💿',
+    }
+    return icons.get(ext, '📄 ')
+
+def show_dir(path="."):
+    try:
+        entries = sorted(os.listdir(path), key=lambda e: (not os.path.isdir(os.path.join(path, e)), e.lower()))
+    except PermissionError:
+        print("Permission denied"); return
+
+    print(f"\n  Vajra Files — {os.path.abspath(path)}\n")
+    print("  " + "="*60)
+    total_size = 0
+    for e in entries:
+        full = os.path.join(path, e)
+        is_dir = os.path.isdir(full)
+        icon = get_icon(e, is_dir)
+        if is_dir:
+            print(f"  {icon}{e}/")
+        else:
+            size = os.path.getsize(full)
+            total_size += size
+            print(f"  {icon}{e:<40} {size:>10,} bytes")
+    print("  " + "="*60)
+    print(f"  {len(entries)} items, {total_size:,} bytes in files")
+
+def main():
+    path = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~")
+    while True:
+        show_dir(path)
+        print("\n  Commands: cd <dir> | open <file> | back | home | quit")
+        cmd = input("\n  vajra-files> ").strip()
+        if cmd in ("q", "quit", "exit"): break
+        elif cmd == "back": path = os.path.dirname(path) or "/"
+        elif cmd == "home": path = os.path.expanduser("~")
+        elif cmd.startswith("cd "): 
+            new = os.path.join(path, cmd[3:])
+            if os.path.isdir(new): path = new
+            else: print("  Not a directory")
+        elif cmd.startswith("open "):
+            f = os.path.join(path, cmd[5:])
+            if os.path.exists(f): subprocess.run(["xdg-open", f])
+            else: print("  File not found")
+
+if __name__ == "__main__":
+    main()
