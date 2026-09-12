@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Vajra Settings
+Name[hi]=वज्र सेटिंग्स
+Comment=Vajra OS Settings Manager
+Exec=/opt/vajra/bin/vajra-settings
+Icon=preferences-system
+Terminal=true
+Type=Application
+Categories=System;Settings;
+Keywords=settings;config;preferences;
