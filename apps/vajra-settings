@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""Vajra Settings Manager — Central configuration for Vajra OS"""
+import os, sys, subprocess
+
+CONFIG = "/etc/vajra.conf"
+MODE_FILE = "/etc/vajra-mode"
+
+def read_setting(key, default=""):
+    try:
+        with open(CONFIG) as f:
+            for line in f:
+                if line.strip().startswith(key + "="):
+                    return line.split("=", 1)[1].strip()
+    except: pass
+    return default
+
+def get_mode():
+    try:
+        with open(MODE_FILE) as f: return f.read().strip()
+    except: return "beginner"
+
+def set_mode(mode):
+    if mode not in ("beginner", "pro"): return False
+    subprocess.run(["sudo", "tee", MODE_FILE], input=mode, text=True)
+    return True
+
+def show_menu():
+    mode = get_mode()
+    os.system("clear 2>/dev/null" or "cls")
+    print("\n\033[1;33m  वज्र OS Settings\033[0m")
+    print("  " + "=" * 50)
+    print(f"  1. Mode:            \033[1;36m{mode}\033[0m")
+    print(f"  2. Timezone:        {os.path.realpath('/etc/localtime').split('zoneinfo/')[-1]}")
+    print(f"  3. Firewall:        {read_setting('FIREWALL_DEFAULT', 'deny-incoming')}")
+    print(f"  4. Telemetry:       \033[1;32m{read_setting('TELEMETRY', 'never')}\033[0m")
+    print(f"  5. Buddhi AI:       {read_setting('BUDDHI_ENABLED', 'yes')}")
+    print(f"  6. Tor:             {read_setting('TOR_OPTIONAL', 'yes')}")
+    print(f"  7. Screen Reader:   {'installed' if os.path.exists('/usr/bin/orca') else 'not installed'}")
+    print(f"  8. Language:        {os.environ.get('LANG', 'en_IN.UTF-8')}")
+    print(f"  9. Show all settings (config file)")
+    print(f"  0. Exit")
+
+def main():
+    while True:
+        show_menu()
+        choice = input("\n  vajra-settings> ").strip()
+
+        if choice == "0": break
+        elif choice == "1":
+            new = "pro" if get_mode() == "beginner" else "beginner"
+            print(f"\n  Switch to {new} mode? (y/n): ", end="")
+            if input().lower() == 'y':
+                if set_mode(new):
+                    print(f"  \033[1;32mMode set to {new}. Log out & back in for full effect.\033[0m")
+        elif choice == "2":
+            subprocess.run(["sudo", "dpkg-reconfigure", "tzdata"])
+        elif choice == "3":
+            print("  Edit /etc/vajra-firewall.conf to change firewall rules")
+        elif choice == "9":
+            subprocess.run(["cat", CONFIG])
+        else:
+            print("  Invalid choice")
+
+if __name__ == "__main__":
+    main()
