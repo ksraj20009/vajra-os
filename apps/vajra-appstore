@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+"""Vajra App Store — Browse and install applications with safety info.
+Every app shows: description, pros, cons, permissions BEFORE install."""
+import subprocess, sys, json
+
+APPS = [
+    {"name": "Firefox", "pkg": "firefox-esr", "desc": "Privacy-respecting web browser", 
+     "pros": ["Open source", "Strong privacy", "Customizable"], 
+     "cons": ["Slower than Chrome", "High memory usage"],
+     "permissions": ["Network access", "File system (downloads)", "Notifications"]},
+    {"name": "VLC Media Player", "pkg": "vlc", "desc": "Play any media file",
+     "pros": ["Plays everything", "Free", "No ads"],
+     "cons": ["Basic interface"],
+     "permissions": ["File access", "Audio output", "DVD access"]},
+    {"name": "LibreOffice", "pkg": "libreoffice", "desc": "Complete office suite",
+     "pros": ["Free forever", "Opens MS Office files", "Indian language support"],
+     "cons": ["Different from MS Office", "Occasional formatting issues"],
+     "permissions": ["File access", "Printer access"]},
+    {"name": "GIMP", "pkg": "gimp", "desc": "Image editor (Photoshop alternative)",
+     "pros": ["Professional features", "Free", "Huge plugin library"],
+     "cons": ["Steep learning curve", "Complex interface"],
+     "permissions": ["File access", "High memory usage"]},
+    {"name": "Thunderbird", "pkg": "thunderbird", "desc": "Email client",
+     "pros": ["Open source", "Built-in encryption", "Multiple accounts"],
+     "cons": ["Slower startup"],
+     "permissions": ["Network access", "Contact access", "File system"]},
+    {"name": "qBittorrent", "pkg": "qbittorrent", "desc": "Torrent client (no ads)",
+     "pros": ["Clean interface", "Built-in search", "Free"],
+     "cons": ["Use legally only"],
+     "permissions": ["Network access", "File system (write)"]},
+    {"name": "OBS Studio", "pkg": "obs-studio", "desc": "Screen recording & streaming",
+     "pros": ["Professional quality", "Free", "Cross-platform"],
+     "cons": ["Resource intensive", "Complex setup"],
+     "permissions": ["Screen capture", "Microphone", "Camera", "Network"]},
+    {"name": "Audacity", "pkg": "audacity", "desc": "Audio editor & recorder",
+     "pros": ["Full audio editing", "Free"],
+     "cons": ["Dated interface"],
+     "permissions": ["Microphone", "Audio output", "File system"]},
+]
+
+def show_app(app, idx):
+    print(f"\n  {'='*60}")
+    print(f"  {idx+1}. {app['name']}")
+    print(f"     {app['desc']}")
+    print(f"  {'='*60}")
+    print(f"  \033[1;32mPros:\033[0m")
+    for p in app['pros']: print(f"    + {p}")
+    print(f"  \033[1;31mCons:\033[0m")
+    for c in app['cons']: print(f"    - {c}")
+    print(f"  \033[1;33mPermissions needed:\033[0m")
+    for p in app['permissions']: print(f"    ! {p}")
+    print(f"  Package: {app['pkg']}")
+
+def main():
+    print("\n\033[1;33m  वज्र App Store\033[0m — Vajra OS")
+    print("\033[1;37m  Every app shows pros, cons & permissions before install\033[0m\n")
+
+    for i, app in enumerate(APPS):
+        show_app(app, i)
+
+    while True:
+        print(f"\n  Enter app number to install (1-{len(APPS)}), 'q' to quit:")
+        choice = input("  vajra-store> ").strip()
+        if choice.lower() in ('q', 'quit', 'exit'): break
+        try:
+            idx = int(choice) - 1
+            app = APPS[idx]
+            show_app(app, idx)
+            confirm = input(f"\n  Install {app['name']}? (y/n): ").strip().lower()
+            if confirm == 'y':
+                print(f"\n  Installing {app['name']}...")
+                result = subprocess.run(["sudo", "apt", "install", "-y", app['pkg']], 
+                                       capture_output=True, text=True)
+                if result.returncode == 0:
+                    print(f"  \033[1;32m✓ {app['name']} installed!\033[0m")
+                else:
+                    print(f"  \033[1;31m✗ Installation failed: {result.stderr[:200]}\033[0m")
+        except (ValueError, IndexError):
+            if choice: print("  Invalid choice")
+
+if __name__ == "__main__":
+    main()
