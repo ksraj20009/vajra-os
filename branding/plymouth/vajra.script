@@ -1,0 +1,62 @@
+# Vajra OS Plymouth boot splash script
+# Shows tricolor progress bar with Vajra logo
+
+Window.SetBackgroundTopColor(0.04, 0.04, 0.10);
+Window.SetBackgroundBottomColor(0.04, 0.10, 0.18);
+
+# Background
+background = Image("vajra-background.png");
+background_sprite = Sprite(background);
+background_sprite.SetPosition(0, 0, 0);
+
+# Logo
+logo = Image("vajra-logo.png");
+logo_sprite = Sprite(logo);
+logo_sprite.SetPosition(Window.GetX() + (Window.GetWidth() / 2) - (logo.GetWidth() / 2), Window.GetY() + (Window.GetHeight() / 4));
+
+# Progress bar background
+progress_bg = Sprite();
+progress_bg.SetImage(Image("progress-bg.png"));
+progress_bg.SetPosition(Window.GetX() + (Window.GetWidth() / 2) - 100, Window.GetY() + (Window.GetHeight() * 0.7));
+
+# Progress bar fill
+progress = Sprite();
+progress.SetImage(Image("progress-fill.png"));
+progress.SetPosition(Window.GetX() + (Window.GetWidth() / 2) - 100, Window.GetY() + (Window.GetHeight() * 0.7));
+
+# Tricolor progress function
+fun progress_callback(duration, progress) {
+    progress.SetImageScale(progress, 1.0);
+    # Saffron -> White -> Green gradient
+    if (progress < 0.5) {
+        progress.SetImageColor(1.0, 0.6, 0.2, 1);  # Saffron
+    } else if (progress < 1.0) {
+        progress.SetImageColor(1.0, 1.0, 1.0, 1);  # White
+    } else {
+        progress.SetImageColor(0.07, 0.53, 0.03, 1); # Green
+    }
+}
+Plymouth.SetBootProgressFunction(progress_callback);
+
+# Text
+message_sprite = Sprite();
+message_sprite.SetPosition(Window.GetX() + (Window.GetWidth() / 2), Window.GetY() + (Window.GetHeight() * 0.8), 1);
+
+fun display_message_callback(text) {
+    message_sprite.SetText(text, 1.0, 0.6, 0.2, 1.0);
+}
+Plymouth.SetDisplayMessageFunction(display_message_callback);
+
+fun hide_message_callback() {
+    message_sprite.SetText("", 1, 1, 1, 1);
+}
+Plymouth.SetHideMessageFunction(hide_message_callback);
+
+# Quit animation
+fun quit_callback() {
+    background_sprite.SetOpacity(0);
+    logo_sprite.SetOpacity(0);
+    progress_bg.SetOpacity(0);
+    progress.SetOpacity(0);
+}
+Plymouth.SetQuitFunction(quit_callback);
