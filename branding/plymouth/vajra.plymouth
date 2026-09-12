@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Vajra
+Description=Vajra OS boot splash — India's Privacy-First AI-Powered OS
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/vajra
+ScriptFile=/usr/share/plymouth/themes/vajra/vajra.script
