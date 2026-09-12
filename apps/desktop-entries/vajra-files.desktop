@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=Vajra Files
+Name[hi]=वज्र फ़ाइलें
+Comment=Vajra OS File Manager
+Comment[hi]=वज्र ओएस फ़ाइल मैनेजर
+Exec=/opt/vajra/bin/vajra-files
+Icon=folder
+Terminal=false
+Type=Application
+Categories=System;FileManager;
+Keywords=files;folder;manager;vajra;
