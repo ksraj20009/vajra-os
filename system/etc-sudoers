@@ -1,0 +1,25 @@
+# /etc/sudoers — Vajra OS sudo configuration
+Defaults    env_reset
+Defaults    mail_badpass
+Defaults    secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/vajra/bin"
+Defaults    use_pty
+Defaults    insults
+
+# Vajra-specific defaults
+Defaults:vajra !requiretty
+Defaults    timestamp_timeout=15
+Defaults    passwd_timeout=2
+Defaults    badpass_message="Wrong password. Dharmo Rakshati Rakshitah."
+
+# Root can run everything
+root    ALL=(ALL:ALL) ALL
+
+# Vajra user can run everything with password
+vajra   ALL=(ALL:ALL) ALL
+
+# Members of admin/sudo group can run everything
+%admin  ALL=(ALL) ALL
+%sudo   ALL=(ALL:ALL) ALL
+
+# Beginner mode: restrict dangerous commands
+# (enforced by vajra-mode script via polkit)
