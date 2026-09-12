@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=Vajra Terminal
+Name[hi]=वज्र टर्मिनल
+Comment=Vajra OS Terminal Emulator
+Comment[hi]=वज्र ओएस टर्मिनल
+Exec=/opt/vajra/bin/vajra-terminal
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=System;TerminalEmulator;
+Keywords=terminal;console;shell;vajra;
