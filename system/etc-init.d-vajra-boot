@@ -1,0 +1,70 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          vajra-boot
+# Required-Start:    $remote_fs $syslog $network
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# Short-Description: Vajra OS boot service
+### END INIT INFO
+
+# Vajra OS Boot Service
+# Runs on every boot to initialize Vajra OS components
+
+VAJRA_HOME="/opt/vajra"
+
+case "$1" in
+    start)
+        echo "[Vajra] Starting Vajra OS boot service..."
+        
+        # Load Vajra environment
+        if [ -f /etc/vajra.conf ]; then
+            source /etc/vajra.conf
+        fi
+        
+        # Set permissions on core tools
+        if [ -d /opt/vajra/bin ]; then
+            chmod +x /opt/vajra/bin/* 2>/dev/null
+        fi
+        
+        # Initialize Buddhi AI
+        if [ -f /opt/vajra/ai/buddhi.py ]; then
+            python3 /opt/vajra/ai/buddhi.py --init 2>/dev/null
+        fi
+        
+        # Set default mode
+        if [ ! -f /etc/vajra-mode ]; then
+            echo "beginner" > /etc/vajra-mode
+        fi
+        
+        # Start festival reminder (if systemd not available)
+        if [ -f /opt/vajra/bin/festival-reminder.py ]; then
+            /opt/vajra/bin/festival-reminder.py --daemon 2>/dev/null &
+        fi
+        
+        # Check for updates
+        if [ -f /opt/vajra/bin/vajra-update-checker.py ]; then
+            /opt/vajra/bin/vajra-update-checker.py 2>/dev/null &
+        fi
+        
+        echo "[Vajra] Boot service started. Dharmo Rakshati Rakshitah."
+        ;;
+    stop)
+        echo "[Vajra] Stopping Vajra OS boot service..."
+        ;;
+    restart|reload|force-reload)
+        $0 start
+        ;;
+    status)
+        if [ -f /etc/vajra-mode ]; then
+            echo "[Vajra] Mode: $(cat /etc/vajra-mode)"
+        else
+            echo "[Vajra] Not initialized"
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+exit 0
