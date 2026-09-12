@@ -1,0 +1,23 @@
+[Default Applications]
+text/plain=org.xfce.mousepad.desktop
+text/html=org.qutebrowser.qutebrowser.desktop
+application/pdf=org.pwmt.zathura.desktop
+image/jpeg=org.gnome.eog.desktop
+image/png=org.gnome.eog.desktop
+image/svg+xml=org.gnome.eog.desktop
+video/mp4=org.xfce.parole.desktop
+audio/mpeg=org.xfce.parole.desktop
+application/zip=xarchiver.desktop
+application/x-tar=xarchiver.desktop
+application/x-bzip2=xarchiver.desktop
+application/x-gzip=xarchiver.desktop
+application/x-xz=xarchiver.desktop
+application/x-7z-compressed=xarchiver.desktop
+application/x-rar=xarchiver.desktop
+inode/directory=thunar.desktop
+x-scheme-handler/http=org.qutebrowser.qutebrowser.desktop
+x-scheme-handler/https=org.qutebrowser.qutebrowser.desktop
+x-scheme-handler/mailto=thunderbird.desktop
+
+[Added Associations]
+text/plain=org.xfce.mousepad.desktop;vim.desktop;
