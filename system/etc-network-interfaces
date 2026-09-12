@@ -1,0 +1,19 @@
+# /etc/network/interfaces — Vajra OS network configuration
+# Loopback
+auto lo
+iface lo inet loopback
+
+# Ethernet (DHCP)
+allow-hotplug eth0
+iface eth0 inet dhcp
+
+# WiFi (DHCP)
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+# Ethernet (Static example)
+# iface eth0 inet static
+#     address 192.168.1.100/24
+#     gateway 192.168.1.1
+#     dns-nameservers 1.1.1.1 8.8.8.8
