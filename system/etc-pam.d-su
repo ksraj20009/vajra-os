@@ -1,0 +1,7 @@
+# /etc/pam.d/su — Vajra OS PAM su config
+auth       sufficient   pam_rootok.so
+auth       required     pam_wheel.so use_uid
+account    include      common-account
+password   include      common-password
+session    required     pam_env.so envfile=/etc/default/locale
+session    include      common-session
