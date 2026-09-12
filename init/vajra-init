@@ -1,0 +1,106 @@
+#!/bin/bash
+# Vajra OS Init Script
+# This runs as PID 1 during early boot
+# वज्र OS initialization
+
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/opt/vajra/bin
+
+echo ""
+echo "================================"
+echo "  वज्र OS — Vajra OS 1.0"
+echo "  India's Privacy-First AI OS"
+echo "  Dharmo Rakshati Rakshitah"
+echo "================================"
+echo ""
+
+# Mount essential filesystems
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+mkdir -p /dev/pts /dev/shm /run /tmp
+mount -t devpts devpts /dev/pts
+mount -t tmpfs tmpfs /dev/shm -o size=512M
+mount -t tmpfs tmpfs /tmp -o size=256M
+mount -t tmpfs tmpfs /run -o size=128M
+
+# Load kernel modules
+if [ -f /etc/modules ]; then
+    while read module; do
+        [ -z "$module" ] && continue
+        [[ "$module" == \#* ]] && continue
+        modprobe "$module" 2>/dev/null
+    done < /etc/modules
+fi
+
+# Set hostname
+hostname vajra
+echo "vajra" > /proc/sys/kernel/hostname
+
+# Set timezone
+ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime 2>/dev/null
+
+# Load Vajra configuration
+if [ -f /etc/vajra.conf ]; then
+    source /etc/vajra.conf
+fi
+
+# Determine boot mode from kernel cmdline
+for arg in $(cat /proc/cmdline); do
+    case "$arg" in
+        vajra.mode=*)
+            BOOT_MODE="${arg#vajra.mode=}"
+            echo "$BOOT_MODE" > /etc/vajra-mode
+            ;;
+        recovery)
+            echo "[Vajra] Recovery mode activated"
+            exec /bin/bash
+            ;;
+        single)
+            echo "[Vajra] Single user mode"
+            exec /sbin/init 1
+            ;;
+    esac
+done
+
+# Default mode
+if [ ! -f /etc/vajra-mode ]; then
+    echo "beginner" > /etc/vajra-mode
+fi
+
+# Configure network
+ip link set lo up 2>/dev/null
+if [ -f /etc/network/interfaces ]; then
+    # Bring up interfaces
+    ip link set eth0 up 2>/dev/null
+    udhcpc -i eth0 -q -t 5 2>/dev/null &
+fi
+
+# Initialize Buddhi AI
+if [ -f /opt/vajra/ai/buddhi.py ]; then
+    echo "[Vajra] Initializing Buddhi AI..."
+    python3 /opt/vajra/ai/buddhi.py --init 2>/dev/null
+fi
+
+# Set up user home
+if [ ! -d /home/vajra ]; then
+    mkdir -p /home/vajra
+    cp -r /etc/skel/. /home/vajra/ 2>/dev/null
+    chown -R vajra:vajra /home/vajra
+fi
+
+# Start display manager or shell
+echo ""
+echo "[Vajra] Boot mode: $(cat /etc/vajra-mode)"
+echo "[Vajra] Starting services..."
+echo ""
+
+# Try to start systemd if available
+if [ -x /lib/systemd/systemd ]; then
+    exec /lib/systemd/systemd
+elif [ -x /sbin/init ]; then
+    exec /sbin/init
+else
+    # Fallback: start getty for login
+    echo "[Vajra] No init system found. Starting login shell..."
+    exec /bin/login -f vajra
+fi
