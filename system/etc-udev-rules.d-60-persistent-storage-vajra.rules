@@ -1,0 +1,14 @@
+# /etc/udev/rules.d/60-persistent-storage-vajra.rules — Vajra OS storage naming
+
+# Import filesystem metadata
+KERNEL=="nvme*[0-9]n[0-9]*", ATTR{wwid}=="?*", SYMLINK+="disk/by-id/nvme-$attr{wwid}"
+KERNEL=="nvme*[0-9]n[0-9]*p[0-9]*", ATTR{wwid}=="?*", SYMLINK+="disk/by-id/nvme-$attr{wwid}-part%n"
+
+# USB devices with serial
+KERNEL=="sd*", ENV{ID_SERIAL}=="?*", ENV{ID_USB_DRIVER}=="usb-storage", SYMLINK+="disk/by-id/usb-$env{ID_SERIAL}"
+
+# By path
+KERNEL=="sd*[!0-9]", ENV{ID_PATH}=="?*", SYMLINK+="disk/by-path/$env{ID_PATH}"
+
+# Partition links
+KERNEL=="sd*[0-9]", ENV{ID_PATH}=="?*", SYMLINK+="disk/by-path/$env{ID_PATH}-part%n"
