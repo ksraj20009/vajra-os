@@ -1,0 +1,15 @@
+# /etc/udev/rules.d/99-usb-automount.rules — Vajra OS USB automount
+# Auto-mount USB drives to /media/<label> when plugged in
+
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="sd[a-z][0-9]", ENV{ID_FS_USAGE}=="filesystem", RUN{program}+="/usr/bin/systemd-mount --no-block --collect --automount=yes $devnode /media/%E{ID_FS_LABEL}"
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="mmcblk[0-9]p[0-9]", ENV{ID_FS_USAGE}=="filesystem", RUN{program}+="/usr/bin/systemd-mount --no-block --collect --automount=yes $devnode /media/%E{ID_FS_LABEL}"
+
+# Unmount on removal
+ACTION=="remove", SUBSYSTEM=="block", RUN{program}+="/usr/bin/systemd-mount --umount $devnode"
+
+# Sound device hotplug
+ACTION=="add", SUBSYSTEM=="sound", RUN+="/usr/bin/alsactl restore"
+
+# Ethernet link detection (NamePolicy)
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", NAME="eth%n"
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="wlan*", NAME="wlan%n"
