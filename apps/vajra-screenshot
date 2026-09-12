@@ -1,0 +1,65 @@
+#!/bin/bash
+# Vajra Screenshot — Take screenshots using available tools
+# Fallback chain: spectacle -> scrot -> import (ImageMagick) -> gnome-screenshot
+
+DIR="$HOME/Pictures/Screenshots"
+mkdir -p "$DIR"
+TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+FILE="$DIR/vajra_$TIMESTAMP.png"
+
+if [ "$1" = "--help" ]; then
+    echo "Vajra Screenshot 1.0"
+    echo "Usage: vajra-screenshot [full|area|window]"
+    exit 0
+fi
+
+MODE="${1:-full}"
+
+case "$MODE" in
+    area)
+        ARGS="-a"
+        ;;
+    window)
+        ARGS="-u"  # scrot / -b for active window
+        ;;
+    *)
+        ARGS=""
+        ;;
+esac
+
+# Try spectacle (KDE)
+if command -v spectacle &>/dev/null; then
+    if [ "$MODE" = "area" ]; then spectacle -r -b -n -o "$FILE"
+    elif [ "$MODE" = "window" ]; then spectacle -a -b -n -o "$FILE"
+    else spectacle -f -b -n -o "$FILE"; fi
+
+# Try scrot
+elif command -v scrot &>/dev/null; then
+    if [ "$MODE" = "area" ]; then scrot -s "$FILE"
+    elif [ "$MODE" = "window" ]; then scrot -u -b "$FILE"
+    else scrot "$FILE"; fi
+
+# Try ImageMagick import
+elif command -v import &>/dev/null; then
+    if [ "$MODE" = "area" ]; then import "$FILE"
+    else import -window root "$FILE"; fi
+
+# Try gnome-screenshot
+elif command -v gnome-screenshot &>/dev/null; then
+    gnome-screenshot -f "$FILE" ${ARGS:+$(echo)}
+
+else
+    echo "No screenshot tool found. Install: sudo apt install scrot"
+    exit 1
+fi
+
+if [ -f "$FILE" ]; then
+    # Copy to clipboard if xclip available
+    command -v xclip &>/dev/null && xclip -selection clipboard -t image/png -i "$FILE"
+    echo "Screenshot saved: $FILE"
+    # Notification
+    command -v notify-send &>/dev/null && notify-send "Vajra Screenshot" "Saved: $TIMESTAMP.png"
+else
+    echo "Screenshot failed"
+    exit 1
+fi
