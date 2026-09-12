@@ -1,0 +1,55 @@
+#!/bin/sh
+# Vajra OS initramfs init script
+# Runs before the real root filesystem is mounted
+
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+# Mount essential filesystems
+/bin/busybox mount -t proc proc /proc 2>/dev/null
+/bin/busybox mount -t sysfs sysfs /sys 2>/dev/null
+/bin/busybox mount -t devtmpfs devtmpfs /dev 2>/dev/null
+
+# Load essential modules
+for mod in ext4 vfat overlay squashfs loop; do
+    /sbin/modprobe "$mod" 2>/dev/null
+done
+
+# Find Vajra OS root device
+VAJRA_ROOT=""
+for dev in /dev/sda1 /dev/sda2 /dev/sdb1 /dev/nvme0n1p1 /dev/mmcblk0p1; do
+    if [ -b "$dev" ]; then
+        # Check if it has Vajra OS
+        if /bin/busybox blkid "$dev" 2>/dev/null | grep -q "vajra"; then
+            VAJRA_ROOT="$dev"
+            break
+        fi
+    fi
+done
+
+# If no root found, try CD-ROM (ISO boot)
+if [ -z "$VAJRA_ROOT" ]; then
+    if [ -b /dev/sr0 ]; then
+        VAJRA_ROOT="/dev/sr0"
+    fi
+fi
+
+# Mount root
+if [ -n "$VAJRA_ROOT" ]; then
+    echo "[Vajra] Mounting root from $VAJRA_ROOT..."
+    /bin/busybox mount -o ro "$VAJRA_ROOT" /mnt/root 2>/dev/null || \
+    /bin/busybox mount -o ro -t squashfs "$VAJRA_ROOT" /mnt/root 2>/dev/null
+    
+    if [ -x /mnt/root/sbin/init ] || [ -x /mnt/root/opt/vajra/bin/vajra-init ]; then
+        # Move mounts to new root
+        /bin/busybox mount --move /proc /mnt/root/proc 2>/dev/null
+        /bin/busybox mount --move /sys /mnt/root/sys 2>/dev/null
+        /bin/busybox mount --move /dev /mnt/root/dev 2>/dev/null
+        
+        # Switch to real root
+        exec /bin/busybox switch_root /mnt/root /opt/vajra/bin/vajra-init
+    fi
+fi
+
+# Fallback: drop to shell
+echo "[Vajra] No root filesystem found. Dropping to recovery shell."
+exec /bin/busybox sh
