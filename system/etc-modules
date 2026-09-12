@@ -1,0 +1,58 @@
+# /etc/modules — Vajra OS kernel modules loaded at boot
+# Filesystems
+ext4
+vfat
+exfat
+ntfs3
+overlay
+squashfs
+fuse
+loop
+
+# Storage / device drivers
+ahci
+sd_mod
+sr_mod
+nvme
+usb_storage
+uas
+mmc_block
+
+# USB
+ehci_pci
+xhci_pci
+uhci_hcd
+usbhid
+
+# Network
+e1000e
+r8169
+atlantic
+iwlwifi
+cfg80211
+
+# Graphics
+i915
+amdgpu
+nouveau
+virtio_gpu
+vmwgfx
+
+# Audio
+snd_hda_intel
+snd_hda_codec
+snd_hda_codec_realtek
+snd_hda_codec_generic
+snd_usb_audio
+
+# Input
+psmouse
+serio_raw
+atkbd
+i8042
+
+# Thermal / power
+coretemp
+k10temp
+acpi_cpufreq
+intel_pstate
