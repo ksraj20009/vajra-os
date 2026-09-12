@@ -1,0 +1,48 @@
+# /etc/profile — Vajra OS system-wide shell profile
+
+# Set PATH
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/vajra/bin"
+export PATH
+
+# Set permissions
+umask 022
+
+# Set terminal
+if [ "$PS1" ]; then
+    # Vajra OS prompt with tricolor
+    if [ "$(id -u)" = "0" ]; then
+        PS1='\[\e[1;31m\]vajra\[\e[0m\]@\[\e[1;33m\]\h\[\e[0m\]:\[\e[1;32m\]\w\[\e[0m\]# '
+    else
+        PS1='\[\e[1;33m\]vajra\[\e[0m\]@\[\e[1;33m\]\h\[\e[0m\]:\[\e[1;32m\]\w\[\e[0m\]$ '
+    fi
+fi
+
+# Vajra OS environment
+export VAJRA_VERSION="1.0"
+export VAJRA_MODE="beginner"
+export VAJRA_HOME="/opt/vajra"
+export BUDDHI_HOME="/opt/vajra/ai"
+export LANG="${LANG:-en_IN.UTF-8}"
+export EDITOR="${EDITOR:-nano}"
+export VISUAL="${VISUAL:-nano}"
+export PAGER="${PAGER:-less}"
+
+# Load Buddhi AI if available
+if [ -f /opt/vajra/ai/buddhi.sh ]; then
+    source /opt/vajra/ai/buddhi.sh
+fi
+
+# Welcome message
+if [ -f /etc/motd ]; then
+    cat /etc/motd
+fi
+
+# Load profiles from /etc/profile.d
+if [ -d /etc/profile.d ]; then
+    for i in /etc/profile.d/*.sh; do
+        if [ -r "$i" ]; then
+            . "$i"
+        fi
+    done
+    unset i
+fi
