@@ -1,0 +1,14 @@
+[Unit]
+Description=Vajra OS Boot Service
+After=network.target graphical.target
+Wants=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/vajra/bin/vajra-boot-start.sh
+ExecStartPost=/bin/sh -c 'echo "Vajra OS boot complete. Dharmo Rakshati Rakshitah."'
+RemainAfterExit=yes
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target graphical.target
