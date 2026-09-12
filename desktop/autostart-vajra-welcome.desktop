@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Vajra Welcome
+Name[hi]=वज्र स्वागत
+Comment=Vajra OS Welcome Screen
+Comment[hi]=वज्र ओएस स्वागत स्क्रीन
+Exec=/opt/vajra/bin/vajra-welcome
+Icon=vajra-logo
+Terminal=false
+Categories=System;
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
+X-KDE-autostart-after=panel
