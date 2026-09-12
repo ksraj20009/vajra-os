@@ -1,0 +1,48 @@
+# /etc/login.defs — Vajra OS login configuration
+PASS_MAX_DAYS   99999
+PASS_MIN_DAYS   0
+PASS_WARN_AGE   7
+PASS_MIN_LEN    8
+
+LOGIN_RETRIES   5
+LOGIN_TIMEOUT   60
+LOGIN_KEEP_USERNAME yes
+
+# Password hashing
+ENCRYPT_METHOD  SHA512
+SHA_CRYPT_MIN_ROUNDS 5000
+SHA_CRYPT_MAX_ROUNDS 5000
+
+# UID/GID ranges
+UID_MIN         1000
+UID_MAX         60000
+GID_MIN         1000
+GID_MAX         60000
+SYS_UID_MIN     100
+SYS_UID_MAX     999
+SYS_GID_MIN     100
+SYS_GID_MAX     999
+
+# Home directory
+CREATE_HOME     yes
+HOME_MODE       0750
+UMASK           022
+
+# Usergroups
+USERGROUPS_ENAB yes
+
+# Default shell
+DEFAULT_SHELL   /bin/bash
+
+# Mail
+MAIL_DIR        /var/mail
+
+# Terminal
+TTYGROUP        tty
+TTYPERM         0600
+
+# Max simultaneous logins
+MAXLOGINS       10
+
+# Vajra-specific
+VAJRA_DEFAULT_MODE beginner
