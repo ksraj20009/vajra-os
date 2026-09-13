@@ -1,12 +1,23 @@
-# वज्र OS — Vajra OS
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ksraj20009/vajra-os/main/branding/icons/vajra-logo-256x256.png" width="130" alt="Vajra OS Logo">
+</p>
 
-### India's Privacy-First, AI-Powered Operating System
+<h1 align="center">वज्र OS — Vajra OS</h1>
 
-**धर्मो रक्षति रक्षितः · Dharmo Rakshati Rakshitah**
+<h3 align="center">India's Privacy-First, AI-Powered Operating System</h3>
+
+<p align="center"><strong>धर्मो रक्षति रक्षितः · Dharmo Rakshati Rakshitah</strong></p>
+
+<p align="center">
+  <a href="https://github.com/ksraj20009/vajra-os/releases"><img src="https://img.shields.io/badge/release-v1.0.0-FF9933" alt="Release"></a>
+  <a href="https://github.com/ksraj20009/vajra-os/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-138808" alt="License"></a>
+  <a href="https://ksraj20009.github.io/vajra-os/"><img src="https://img.shields.io/badge/website-ksraj20009.github.io-blue" alt="Website"></a>
+  <img src="https://img.shields.io/badge/made%20in-India-red" alt="Made in India">
+</p>
 
 ---
 
-**Vajra OS is a complete, standalone operating system** — not a plugin, not an app, not an Ubuntu extension. It boots from USB, runs on bare metal, and comes with its own kernel, desktop environment, AI assistant, and 293+ built-in tools.
+**Vajra OS is a complete, standalone operating system** — not a plugin, not an app, not an Ubuntu extension. It boots from USB, runs on bare metal, and comes with its own kernel, desktop environment, AI assistant, full branding suite, and 320+ built-in tools across 510+ source files.
 
 ## Download
 
@@ -29,6 +40,8 @@
 - **Beginner & Pro Modes** — Safety guardrails for new users
 - **10 Indian Languages** — Hindi, Tamil, Bengali, Gujarati, Punjabi, Kannada, Telugu, Malayalam, Marathi, Sanskrit
 - **Cybersecurity Tools** — Pentesting suite with ethical usage guides
+- **Full Branding Suite** — Plymouth boot splash, GRUB theme, icon set (16–512 px), wallpapers
+- **6 Native Apps** — Terminal, Files, Monitor, Screenshot, App Store, Settings
 
 ## Quick Start
 
@@ -50,16 +63,16 @@ vajra-os/
 ├── installer/      → Calamares installer configuration
 ├── live-build/     → Full desktop ISO build config
 ├── docker/         → Docker rootfs
-├── branding/       → GRUB theme, wallpapers
+├── branding/       → Plymouth splash, GRUB theme, icons, wallpapers
 ├── desktop/        → Desktop environment configs
 ├── system/         → Login banners, system configs
-├── systemd/         → Boot services, timers
+├── systemd/        → Boot services, timers
 ├── polkit/         → Beginner/Pro mode policies
-├── web/             → Landing page (deployed to GitHub Pages)
+├── web/            → Landing page (deployed to GitHub Pages)
 ├── apt-repo/       → APT repository metadata
 ├── kernel/         → Kernel module configs
 ├── security/       → Cybersecurity tools
-├── privacy/         → Tor, VPN configs
+├── privacy/        → Tor, VPN configs
 ├── network/        → Network management
 ├── locale/         → Indian language support
 ├── unique/         → GST, Panchang, Ayurveda, Vedic math, IRCTC
