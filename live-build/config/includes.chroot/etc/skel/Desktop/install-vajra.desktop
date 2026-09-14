@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Install Vajra OS
+Name[hi]=वज्र ओएस इंस्टॉल करें
+Comment=Install Vajra OS on your hard drive
+Comment[hi]=अपनी हार्ड ड्राइव पर वज्र ओएस इंस्टॉल करें
+Exec=sudo /opt/vajra/scripts/setup.sh
+Icon=vajra-logo
+Terminal=false
+Categories=System;
