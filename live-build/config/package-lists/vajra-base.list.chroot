@@ -1,0 +1,13 @@
+# Vajra OS Base Packages
+live-boot live-config systemd systemd-sysv sudo wget curl ca-certificates
+linux-image-amd64 linux-headers-amd64 firmware-linux firmware-linux-nonfree firmware-iwlwifi
+network-manager network-manager-gnome network-manager-openvpn wpasupplicant iptables
+tor tor-geoipdb macchanger firewalld apparmor apparmor-profiles usbguard bleachbit keepassxc
+python3 python3-pip python3-requests python3-dbus python3-gi python3-gi-cairo python3-notify2
+task-gnome-desktop gdm3 gnome-core gnome-shell gnome-session gnome-control-center gnome-tweaks gnome-terminal nautilus gedit eog evince file-roller gnome-calculator gnome-clocks gnome-calendar gnome-weather gnome-maps gnome-screenshot gnome-system-monitor
+arc-theme papirus-icon-theme fonts-noto fonts-noto-cjk fonts-noto-color-emoji fonts-firacode
+firefox-esr thunderbird vlc
+htop btop neofetch bat fd-find ripgrep tmux tree nano vim git openssh-client openssh-server calamares calamares-settings-debian parted gparted
+btrfs-progs e2fsprogs ntfs-3g exfatprogs dosfstools udisks2
+pipewire pipewire-pulse wireplumber pavucontrol
+zip unzip p7zip-full
