@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Buddhi AI
+Name[hi]=बुद्धि एआई
+Comment=Vajra OS AI Assistant
+Comment[hi]=वज्र ओएस एआई सहायक
+Exec=buddhi
+Icon=vajra-logo
+Terminal=true
+Categories=Utility;System;
