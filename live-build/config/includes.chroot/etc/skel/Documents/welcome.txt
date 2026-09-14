@@ -1,1 +1,19 @@
-Welcome to NexusOS!\n\nYour private, AI-powered operating system.\n\nNexusOS 1.0 Aurora\n\nEverything runs locally. No tracking. No cloud.\n\nQUICK START:\n  - Press Ctrl+Space for AI command bar\n  - Run nexus-ai in terminal for AI chat\n  - Say Nexus for voice commands\n  - Double-click Install NexusOS on desktop to install\n\nTo install on your hard drive:\n  sudo /opt/nexusos/scripts/setup.sh\n\nEnjoy your private OS!\n
+Welcome to Vajra OS!
+
+India's Privacy-First, AI-Powered Operating System.
+
+वज्र OS 1.0
+
+Everything runs locally. No tracking. No cloud.
+धर्मो रक्षति रक्षितः — Dharma protects those who protect it.
+
+QUICK START:
+  - Type 'buddhi' in terminal for AI assistant (बुद्धि)
+  - Say "Buddhi" for voice commands
+  - Double-click Install Vajra OS on desktop to install
+  - Beginner mode keeps you safe; switch to Pro in Settings
+
+To install on your hard drive:
+  sudo /opt/vajra/scripts/setup.sh
+
+Enjoy your private OS — Made in India!
