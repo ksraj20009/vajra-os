@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=Install NexusOS
-Comment=Install NexusOS on your hard drive
-Exec=sudo /opt/nexusos/scripts/setup.sh
-Icon=system-software-install
-Terminal=false
-Categories=System;
