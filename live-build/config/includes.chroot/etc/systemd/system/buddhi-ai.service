@@ -1,0 +1,16 @@
+[Unit]
+Description=Vajra OS Buddhi AI Assistant
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vajra
+ExecStart=/usr/bin/python3 /opt/vajra/ai/buddhi-ai.py --service
+Restart=always
+RestartSec=5
+Environment=HOME=/home/vajra
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=multi-user.target
