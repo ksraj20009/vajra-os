@@ -85,4 +85,46 @@ for svc in vajra-boot-check vajra-update-check.timer vajra-festival-reminder.tim
     systemctl enable $svc 2>/dev/null || true
 done
 
+# --- Install Vajra icons to hicolor theme ---
+mkdir -p /usr/share/icons/hicolor/16x16/apps
+mkdir -p /usr/share/icons/hicolor/32x32/apps
+mkdir -p /usr/share/icons/hicolor/48x48/apps
+mkdir -p /usr/share/icons/hicolor/64x64/apps
+mkdir -p /usr/share/icons/hicolor/128x128/apps
+mkdir -p /usr/share/icons/hicolor/256x256/apps
+mkdir -p /usr/share/icons/hicolor/512x512/apps
+
+if [ -d /usr/share/vajra/icons ]; then
+    for size in 16 32 48 64 128 256 512; do
+        if [ -f /usr/share/vajra/icons/vajra-logo-${size}x${size}.png ]; then
+            cp /usr/share/vajra/icons/vajra-logo-${size}x${size}.png /usr/share/icons/hicolor/${size}x${size}/apps/vajra-logo.png
+        fi
+    done
+    for app in appstore files monitor settings screenshot terminal; do
+        for size in 32 48; do
+            if [ -f /usr/share/vajra/icons/vajra-${app}-${size}x${size}.png ]; then
+                cp /usr/share/vajra/icons/vajra-${app}-${size}x${size}.png /usr/share/icons/hicolor/${size}x${size}/apps/vajra-${app}.png
+            fi
+        done
+    done
+    gtk-update-icon-cache /usr/share/icons/hicolor 2>/dev/null || true
+fi
+
+# --- Plymouth boot splash ---
+if [ -d /usr/share/vajra/plymouth ]; then
+    mkdir -p /usr/share/plymouth/themes/vajra
+    cp /usr/share/vajra/plymouth/*.png /usr/share/plymouth/themes/vajra/ 2>/dev/null || true
+fi
+
+# --- GRUB background ---
+if [ -f /usr/share/vajra/grub/vajra-grub.png ]; then
+    mkdir -p /boot/grub
+    cp /usr/share/vajra/grub/vajra-grub.png /boot/grub/ 2>/dev/null || true
+fi
+
+# --- Default wallpaper PNG ---
+if [ -f /usr/share/vajra/wallpapers/vajra-default.png ]; then
+    cp /usr/share/vajra/wallpapers/vajra-default.png /usr/share/backgrounds/vajra/ 2>/dev/null || true
+fi
+
 echo "[Vajra] Branding complete!"
