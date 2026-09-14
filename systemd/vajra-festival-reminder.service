@@ -4,4 +4,4 @@ After=network.target graphical.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/share/vajra/tools/festivals_vajra-festival-calendar.py --notify
+ExecStart=/usr/bin/python3 /usr/share/vajra/tools/vajra-festival-calendar.py --notify
