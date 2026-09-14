@@ -1,0 +1,18 @@
+DataDirectory /var/lib/tor
+PidFile /run/tor/tor.pid
+Log notice file /var/log/tor/notices.log
+TransPort 9040
+TransListenAddress 127.0.0.1
+DNSPort 5353
+DNSListenAddress 127.0.0.1
+SocksPort 9050
+SocksPolicy accept 127.0.0.1/32
+SocksPolicy reject *
+ExitPolicy accept *:80,443
+ExitPolicy accept *:53,22
+ExitPolicy reject *
+MaxCircuitDirtiness 600
+NewCircuitPeriod 30
+NumEntryGuards 8
+AvoidDiskWrites 1
+SafeLogging 1

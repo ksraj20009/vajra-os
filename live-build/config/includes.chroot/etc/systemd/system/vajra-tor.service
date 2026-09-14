@@ -1,0 +1,12 @@
+[Unit]
+Description=Vajra OS Tor Transparent Proxy
+After=network-online.target tor.service
+Wants=network-online.target tor.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/vajra/privacy/setup-tor-proxy.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
