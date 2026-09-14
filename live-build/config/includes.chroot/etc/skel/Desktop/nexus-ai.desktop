@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=Nexus AI
-Comment=NexusOS AI Assistant
-Exec=gnome-terminal -- nexus-ai
-Icon=applications-science
-Terminal=false
-Categories=Utility;System;
