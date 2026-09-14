@@ -25,4 +25,4 @@ ai/models/
 Thumbs.db
 
 # Docker
-nexusos-docker.tar.gz
+vajra-docker.tar.gz
