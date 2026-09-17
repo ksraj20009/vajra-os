@@ -133,7 +133,7 @@ jobs:
           ls -la vajra-os-1.0-amd64.iso
 
       - name: Upload artifacts to release
-n        env:
+        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload v1.0.0 vajra-os-1.0-amd64.iso vajra-os-packages.tar.gz --clobber
@@ -150,7 +150,7 @@ n        env:
           mkdir -p pool/main/v
           for deb in "$GITHUB_WORKSPACE"/packaging/*.deb; do
             name=$(basename "$deb" | sed 's/_1\.0\.0_.*//')
-            mkdir -p "pool/main/v/$name"
+            mkdir -p "pool/main/v/$name/"
             cp "$deb" "pool/main/v/$name/"
           done
           # Regenerate package index with real checksums
@@ -175,4 +175,3 @@ n        env:
           git add apt-repo
           git commit -m "apt: publish packages with signed metadata" || echo "no changes"
           git push origin gh-pages
-n
