@@ -83,10 +83,10 @@ def build_iso(output_path="vajra-os-1.0-amd64.iso"):
     with tarfile.open(str(kernel_apk), 'r') as tar:
         members = tar.getmembers()
         for m in members:
-            if m.name == "./boot/vmlinuz-virt":
+            if m.name == "boot/vmlinuz-virt" or m.name == "./boot/vmlinuz-virt":
                 tar.extract(m, str(WORK))
                 print(f"  [+] vmlinuz-virt: {m.size:,} bytes")
-            if m.name.startswith("./lib/modules/"):
+            if m.name.startswith("lib/modules/") or m.name.startswith("./lib/modules/"):
                 tar.extract(m, str(WORK))
     
     vmlinuz = WORK / "boot/vmlinuz-virt"
@@ -246,10 +246,9 @@ mount -t tmpfs tmpfs /tmp
 
 echo ""
 echo "  =================================================="
-echo "  |    VAJRA OS (वज्र OS) 1.0                       |"
+echo "  |    VAJRA OS 1.0                                |"
 echo "  |    India's Privacy-First AI-Powered OS         |"
 echo "  |                                                |"
-echo "  |    धर्मो रक्षति रक्षितः                       |"
 echo "  |    Dharmo Rakshati Rakshitah                  |"
 echo "  =================================================="
 echo ""
@@ -279,7 +278,7 @@ echo "  Commands:"
 echo "    vajra-install   — Install Vajra OS to disk"
 echo "    vajra-help      — Show all commands"
 echo "    vajra-tools     — List 279 utility tools"
-echo "    buddhi          — AI assistant (बुद्धि)"
+echo "    buddhi          — AI assistant"
 echo ""
 
 exec /bin/sh
