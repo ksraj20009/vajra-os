@@ -1,11 +1,12 @@
 # Vajra OS Docker Image
 # India's Privacy-First AI-Powered OS — Docker Edition
 #
-# Build (if you have the rootfs tarball):
+# Download vajra-os-rootfs.tar.gz from the v1.0.0 release, place it next to
+# this file, then:
 #   docker build -t vajra-os:1.0 -f Dockerfile.vajra .
 #
 # Or import directly:
-#   docker import vajra-os-rootfs.tar vajra-os:1.0
+#   docker import vajra-os-rootfs.tar.gz vajra-os:1.0
 #
 # Run:
 #   docker run -it vajra-os:1.0
@@ -14,7 +15,7 @@
 #   docker run -it vajra-os:1.0 vajra-tools
 
 FROM scratch
-ADD vajra-os-rootfs.tar /
+ADD vajra-os-rootfs.tar.gz /
 CMD ["/usr/local/bin/vajra-docker-entrypoint"]
 
 # Metadata

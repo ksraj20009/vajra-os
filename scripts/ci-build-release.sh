@@ -1,8 +1,8 @@
 #!/bin/bash
 # ============================================================================
 # Vajra OS — full release build (run by .github/workflows/build-release.yml)
-# Builds all vajra-* .deb packages, the ISO, uploads them to the v1.0.0
-# release, and publishes a signed APT repository to the gh-pages branch.
+# Builds all vajra-* .deb packages, the ISO, the Docker rootfs, uploads them to
+# the v1.0.0 release, and publishes a signed APT repository to gh-pages.
 # ============================================================================
 set -uo pipefail
 
@@ -112,10 +112,14 @@ sudo chown -R "$(id -u):$(id -g)" /scratch
 python3 iso/build-iso.py --output vajra-os-1.0-amd64.iso || fail "ISO build failed"
 ls -la vajra-os-1.0-amd64.iso
 
+# --- 5b. Build the Docker rootfs ---------------------------------------------
+python3 iso/build-rootfs.py --output vajra-os-rootfs.tar.gz || fail "rootfs build failed"
+ls -la vajra-os-rootfs.tar.gz
+
 # --- 6. Upload artifacts to the release -------------------------------------
 if [ -n "${GH_TOKEN:-}" ]; then
   gh release upload "$RELEASE_TAG" \
-    vajra-os-1.0-amd64.iso vajra-os-packages.tar.gz --clobber \
+    vajra-os-1.0-amd64.iso vajra-os-packages.tar.gz vajra-os-rootfs.tar.gz --clobber \
     || fail "release upload failed"
   echo "[+] Release assets updated"
 else
