@@ -70,6 +70,8 @@ cp branding/wallpapers/vajra-default.png packaging/vajra-wallpapers/src/vajra-de
   || fail "missing wallpaper (run generate-branding first)"
 
 chmod +x packaging/vajra-*/debian/rules
+# debian/compat + debhelper-compat in control both declare the level — fatal in dh 13
+rm -f packaging/vajra-*/debian/compat
 
 # --- 4. Build every package -------------------------------------------------
 cd packaging || fail "no packaging dir"
