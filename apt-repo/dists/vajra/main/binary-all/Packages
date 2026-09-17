@@ -147,11 +147,11 @@ Maintainer: Vajra OS Team <packages@vajra-os.org>
 Installed-Size: 10
 Depends: gnupg
 Filename: pool/main/v/vajra-keyring/vajra-keyring_1.0.0_all.deb
-Size: 2222
-MD5sum: e638c566680633435a2b270a51a7af29
-SHA1: 3c7f8e4967c0b8e2a6b6c40789364f2be9b983cd
-SHA256: ee87b68a1f7f11df68438db721bb6f2137e35910b9158f92998b30207f942e41
-SHA512: 96947e0a268b61e008c85bf025a9ac12d882e352afde6823ea5110671bacc80abf0a4c01c06f24d433f9c26d8be6d1f4ca04f046fb26118da66c6623354291af
+Size: 2220
+MD5sum: c47a8b1a8e887f0694603d864c66c6a3
+SHA1: bd732d1a9edb4f76a4a8c9796590f16f8b2402a3
+SHA256: 8e5c6b9dfcbe8eb4764f75effa9a6f476a10dc5f3e8e6962eaefbc5b22ddf4c1
+SHA512: 5b3092aa0bee9b2a29fa1e559f90e9c5bcdf63c4af453a934e1a168de99b1871cb17ebce847d9406f839d1688b18b49a87d0426daa45d7eac7b900912629b04d
 Homepage: https://vajra-os.org
 Description: Vajra OS repository signing key
  Contains the GPG public key used to sign the Vajra OS APT repository.
@@ -282,11 +282,11 @@ Section: x11
 Maintainer: Vajra OS Team <packages@vajra-os.org>
 Installed-Size: 94
 Filename: pool/main/v/vajra-wallpapers/vajra-wallpapers_1.0.0_all.deb
-Size: 82294
-MD5sum: 4c6a566d894624330097e0a767ded105
-SHA1: 0ff242e934c2418a18a39b14136f7715278980d6
-SHA256: 5605b0c98d0dc35b21866fcae0a130edb0d19d6278b548b961bbf7e7d487ef40
-SHA512: 7fcc4fb0626bff1901f34c0b4a9ec06bb416bce40e46f08297d864e4a96d97979b426499d694fc0527c5a283a4ded53b4f9de7cfab8638a1ee3c1e423be53587
+Size: 82292
+MD5sum: 2f76656fc36ccde820cf9c51200572b9
+SHA1: ffe60dbdb23adb651c6976e182844e6310972d44
+SHA256: 0c518edcb22d3b53e221630b1581c6fb8d416cc1987c3263709108ac5d337255
+SHA512: 44702b1922af08a8a79caf4fc8011426a9447e0aae738e1b4cd99edd55ea1f5281d34229830a854be65f40a49d161c49bdd01f7ae9b50e9189ac08fd01b27e5d
 Homepage: https://ksraj20009.github.io/vajra-os/
 Description: Vajra OS Default Wallpapers
  Default tricolor diamond wallpaper pack for the Vajra OS desktop.
