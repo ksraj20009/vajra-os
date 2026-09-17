@@ -1,118 +1,295 @@
 Package: vajra-buddhi-ai
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 13
-Filename: pool/main/v/vajra-buddhi-ai/vajra-buddhi-ai_1.0.0_all.deb
-Size: 12588
-MD5sum: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
-SHA256: e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8
-Section: admin
+Version: 1.0.0
 Priority: optional
-Depends: python3
-Description: Buddhi AI - Vajra OS AI assistant with voice and agentic capabilities
+Section: python
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 58
+Depends: python3, python3-pip, espeak-ng, ffmpeg
+Recommends: portaudio19-dev, python3-pyaudio
+Filename: pool/main/v/vajra-buddhi-ai/vajra-buddhi-ai_1.0.0_all.deb
+Size: 13562
+MD5sum: 904ae5c3d5f5b4378551b04bf039722d
+SHA1: 09e780328220efdf53b07f003927f97bc4871023
+SHA256: b2427456f5e15ca3d5d51847e089f3704dc15b433d9dccd9ddcc4cb5b20cc632
+SHA512: 9ca034348e5ef9f8c56898373398585ffcf587bf9963ae5074a751ec155bfd44435bb296ed7cf8e52fe2cc6ee123f34d7c14c75db618fe20e8d3a008e681dd02
+Homepage: https://vajra-os.org
+Description: Buddhi AI (बुद्धि) — India-first AI assistant for Vajra OS
+ Buddhi is the built-in AI assistant for Vajra OS, designed to be:
+ .
+  * Agentic — can execute tasks, not just chat
+  * Voice-controlled — supports Indian languages (Hindi, Tamil, Bengali, etc.)
+  * Privacy-first — runs completely locally, no cloud APIs
+  * India-aware — understands Indian context, festivals, currency, languages
+ .
+ Features:
+  * Voice recognition with Indian language support
+  * Text-to-speech in Hindi and English
+  * System control (launch apps, change settings, manage files)
+  * Code generation and execution
+  * Indian calendar (Panchang) integration
+  * Vedic math calculations
+  * GST calculator
+  * Festival reminders
+  * Ayurveda health tips
+ .
+ All processing happens locally — your data never leaves your machine.
 
 Package: vajra-control-center
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 6
-Filename: pool/main/v/vajra-control-center/vajra-control-center_1.0.0_all.deb
-Size: 5572
-MD5sum: b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7
-SHA256: f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9
-Section: admin
+Version: 1.0.0
 Priority: optional
-Description: Vajra OS Control Center - 12-section settings panel
+Section: admin
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 26
+Depends: python3, systemd, network-manager, alsa-utils
+Recommends: x11-xserver-utils, brightnessctl, redshift
+Filename: pool/main/v/vajra-control-center/vajra-control-center_1.0.0_all.deb
+Size: 6434
+MD5sum: a80abd4e1f77d0c1681adf20c8f3004e
+SHA1: 95feb3e965bfd31f4ddc33bcc5c152dd99649e8c
+SHA256: ae8b3f1407ff921cf2d3b165ddfe22d4c7b9276e8474ce540604491a3206f202
+SHA512: 09855995ca0e6f4f69705d1b02e5a23ba6cb9022b539df77ef049f5a3b15ba70122e2df6788d6a60d564d195103d6ca825ba9aa80bbc6bc9fbd40830f87bd86c
+Homepage: https://vajra-os.org
+Description: Vajra OS Control Center — system settings (12 sections)
+ Central configuration hub for Vajra OS, modeled after Windows Settings
+ and macOS System Preferences. Provides 12 settings sections:
+ .
+  * Display (resolution, brightness, night light, scale)
+  * Network (Wi-Fi, Ethernet, DNS, proxy, diagnostics)
+  * Sound (volume, output/input devices)
+  * Privacy (Tor toggle, data clearing, MAC randomization)
+  * Security (firewall, encryption, access control)
+  * Language & Region (en_IN, hi_IN, ta_IN, etc.)
+  * Time & Date (NTP, timezone)
+  * Users & Accounts (add/remove, passwords, groups)
+  * Power & Battery (profiles, suspend, CPU governor)
+  * Apps & Features (launch app store)
+  * Accessibility
+  * About (system info with धर्मो रक्षति रक्षितः)
 
 Package: vajra-core
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 31
-Filename: pool/main/v/vajra-core/vajra-core_1.0.0_all.deb
-Size: 30196
-MD5sum: c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8
-SHA256: a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0
+Version: 1.0.0
+Priority: required
 Section: admin
-Priority: optional
-Description: Vajra OS Core - 16 OS management tools
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 98
+Depends: python3, bash, systemd, procps, util-linux, coreutils
+Recommends: vajra-security-center, vajra-control-center, vajra-service-manager
+Suggests: vajra-package-manager, vajra-update-manager
+Filename: pool/main/v/vajra-core/vajra-core_1.0.0_all.deb
+Size: 20580
+MD5sum: 86a143b7799cacab29134ac863260c1a
+SHA1: 58e25da924df94f81bcac91aba570977b45edc01
+SHA256: 39b9cc14872056aef7613ade937ca5573f9dc2fc4e9d5d5bd7663b9999f9e11b
+SHA512: e12ff8d511927d5e932bc513ec668a6a8c349c78755a1d45d7e34fd9832e196a8df87c5f1927a0accbc6bec946b2a0b59503626ae31ea0ffae66aa1e63dee939
+Homepage: https://vajra-os.org
+Description: Vajra OS Core System — boot, process, memory, filesystem, device, display, service, user, session managers
+ Vajra OS (वज्र OS) core system infrastructure. This package contains the
+ fundamental OS management tools that every Vajra installation needs:
+ .
+  * vajra-boot-manager    — Boot process, GRUB, kernel selection, initramfs
+  * vajra-process-manager — Process states, signals, IPC, process tree, monitor
+  * vajra-memory-manager  — Virtual memory, swap, OOM killer, memory maps
+  * vajra-filesystem-manager — VFS, mount, permissions, format, fsck
+  * vajra-device-manager  — Hardware detection, PCI/USB, driver loading
+  * vajra-display-server  — X11/Wayland, resolution, multi-monitor, brightness
+  * vajra-service-manager — systemd wrapper, targets, timers, sockets
+  * vajra-user-session-manager — Users, groups, sessions, PAM, login
+ .
+ These are the building blocks that make Vajra OS a real operating system,
+ not just a themed Linux distribution.
 
 Package: vajra-desktop
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 1
-Filename: pool/main/v/vajra-desktop/vajra-desktop_1.0.0_all.deb
-Size: 976
-MD5sum: d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9
-SHA256: b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1
-Section: admin
+Version: 1.0.0
 Priority: optional
-Depends: xfce4, lightdm, fonts-noto-deva, ibus
-Description: Vajra OS Desktop Environment - Xfce + LightDM + Indian language support
+Section: metapackages
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 56
+Depends: vajra-core, vajra-keyring, vajra-sources, vajra-security-center, vajra-control-center, vajra-package-manager, vajra-update-manager, vajra-buddhi-ai, gnome-shell | kde-plasma-desktop | xfce4, firefox-esr | firefox, libreoffice, gimp, vlc, gnome-terminal | xfce4-terminal, gparted, network-manager, ufw, fonts-noto-core, fonts-noto-cjk
+Recommends: thunderbird, inkscape, audacity, obs-studio, git, vim, htop, neofetch
+Suggests: timeshift, clamav, wireshark, nmap, redshift, gdebi
+Filename: pool/main/v/vajra-desktop/vajra-desktop_1.0.0_all.deb
+Size: 34052
+MD5sum: a2aff1cae7655ddf8b0c7965c01f2462
+SHA1: 0f76fb3bce12716b0e41ef72827db03e9f357835
+SHA256: fe8e8f4829d5e59eb29b61195af009f6097fa19b963e5c379c216d5cfda8ca4b
+SHA512: 8fe8bf02dbca3c3a7f8455eae72b52eafde7e5133114fe19509a5bd10234eb82487bab3319391ef697af3e01d32cf821c2f5145f41dfaa5ab39d08566f3aad78
+Homepage: https://vajra-os.org
+Description: Vajra OS Desktop — complete desktop meta-package
+ This meta-package installs the complete Vajra OS desktop experience.
+ It pulls in all Vajra core tools, the desktop environment, default
+ applications, and system utilities that make up Vajra OS.
+ .
+ Installing this single package transforms a base Debian/Ubuntu system
+ into a full Vajra OS installation with:
+ .
+  * Vajra core system tools (boot, process, memory, filesystem, device, display)
+  * Vajra Security Center (firewall, encryption, audit, antivirus)
+  * Vajra Control Center (12-section system settings)
+  * Vajra App Store & Package Manager (28 curated apps)
+  * Vajra Update Manager (with rollback snapshots)
+  * Buddhi AI assistant (अबुद्धि) — India-first AI
+  * GNOME or KDE or XFCE desktop environment
+  * Curated default applications (all free/open-source)
+  * Indian language fonts (Noto Devanagari, Tamil, Bengali, etc.)
+ .
+ Install with: sudo apt install vajra-desktop
 
 Package: vajra-keyring
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 2
+Version: 1.0.0
+Priority: important
+Section: misc
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 10
+Depends: gnupg
 Filename: pool/main/v/vajra-keyring/vajra-keyring_1.0.0_all.deb
-Size: 1752
-MD5sum: e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0
-SHA256: c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2
-Section: admin
-Priority: optional
-Description: GPG keyring for Vajra OS package repository (key 881FCB3110D97AFD)
+Size: 2222
+MD5sum: e638c566680633435a2b270a51a7af29
+SHA1: 3c7f8e4967c0b8e2a6b6c40789364f2be9b983cd
+SHA256: ee87b68a1f7f11df68438db721bb6f2137e35910b9158f92998b30207f942e41
+SHA512: 96947e0a268b61e008c85bf025a9ac12d882e352afde6823ea5110671bacc80abf0a4c01c06f24d433f9c26d8be6d1f4ca04f046fb26118da66c6623354291af
+Homepage: https://vajra-os.org
+Description: Vajra OS repository signing key
+ Contains the GPG public key used to sign the Vajra OS APT repository.
+ Users install this package to verify the authenticity of Vajra OS packages.
+ .
+ The key is installed to /usr/share/keyrings/vajra-archive-keyring.gpg and
+ automatically configures apt to use it for repository verification.
 
 Package: vajra-package-manager
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 5
-Filename: pool/main/v/vajra-package-manager/vajra-package-manager_1.0.0_all.deb
-Size: 4604
-MD5sum: f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1
-SHA256: d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3
-Section: admin
+Version: 1.0.0
 Priority: optional
-Description: Vajra OS Package Manager - app store with permission review
+Section: admin
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 23
+Depends: python3, apt, dpkg
+Filename: pool/main/v/vajra-package-manager/vajra-package-manager_1.0.0_all.deb
+Size: 5254
+MD5sum: 58395dfa3c4553c11fd44476a5ce45ff
+SHA1: 8ccc8d905c2bc957d5aa56288e9af128d4ddb2d7
+SHA256: 4cd95fe2729d59878bb2fc990c3b89cbf3e336bf06477a4e0195e51d2bbac301
+SHA512: 28c1ebaddadbe32c121b0376dec6842b1d3b76eda7357baeb8225a8c1599e8cd98b0c22408ee8a11a669ed95a183aad563da5903119783b830fb758ef5316011
+Homepage: https://vajra-os.org
+Description: Vajra OS App Store & Package Manager — 28 curated free apps
+ Privacy-first app store that shows app info, pros, cons, and permissions
+ BEFORE installation. All apps are free and open source.
+ .
+ Features:
+  * Browse 28 curated apps across 9 categories
+  * Search apps by name, description, or category
+  * Show app details: description, size, permissions, pros, cons
+  * Install/remove apps with privacy confirmation
+  * Update all installed packages
+  * List all installed packages
+ .
+ Categories: Office, Graphics, Internet, Media, Developer, System,
+ Security, Social, Gaming.
 
 Package: vajra-security-center
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 4
-Filename: pool/main/v/vajra-security-center/vajra-security-center_1.0.0_all.deb
-Size: 3844
-MD5sum: a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2
-SHA256: e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4
-Section: admin
+Version: 1.0.0
 Priority: optional
-Description: Vajra OS Security Center - firewall, IDS, security audit
+Section: admin
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 19
+Depends: python3, ufw, gnupg, apparmor
+Recommends: clamav, fail2ban
+Filename: pool/main/v/vajra-security-center/vajra-security-center_1.0.0_all.deb
+Size: 4468
+MD5sum: a400c84ce07c3347ad7bdb7cdb0c542f
+SHA1: 5e76bce56a7318c3620a177d0123ae0572ca75a2
+SHA256: 39d81957619288739298b9a7963759f1f8789e82aa1adda50265dcc01ef81d61
+SHA512: 5dc460277f5cb4e6f8615d1724bdef7bf5aef2195d1bc74df63bc3e5d3f5f5b5a2c1c0552a069666b7804dca25a1d5212fa6e39065dff8b564075dfe800ca2f9
+Homepage: https://vajra-os.org
+Description: Vajra OS Security Center — firewall, encryption, audit, antivirus
+ Centralized security management for Vajra OS. Provides a dashboard with
+ security score, firewall management, file/disk encryption, access control
+ (PAM/sudo/AppArmor), audit logging, and antivirus scanning.
+ .
+ Features:
+  * Security dashboard with score (0-100)
+  * UFW firewall management (allow/deny ports, services)
+  * GPG file encryption/decryption
+  * LUKS disk encryption status
+  * AppArmor profile management
+  * Failed login tracking
+  * Audit log of all security events
+  * One-click security hardening
+  * ClamAV antivirus integration
+
+Package: vajra-sources
+Architecture: all
+Version: 1.0.0
+Priority: important
+Section: admin
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 13
+Depends: vajra-keyring
+Filename: pool/main/v/vajra-sources/vajra-sources_1.0.0_all.deb
+Size: 1392
+MD5sum: 4b83e66ba75b917293a4b06d1381da77
+SHA1: fe77fe19abc3335370457a68a0eedd69f37d69d8
+SHA256: f1e157900516c1b0763685a356b00fff3751fd4fa85ddd727501ba1c53a35462
+SHA512: 107e54a2c646e9b33b870370927abf8196ec466f90d497f0638a3552de1f88c935b63a43c1be425f7383876f070faa14e8cba4c09ae9fb5aa572884a01e621ae
+Homepage: https://vajra-os.org
+Description: Vajra OS APT sources.list configuration
+ Configures apt to use the Vajra OS package repository.
+ Installs /etc/apt/sources.list.d/vajra.list pointing to the Vajra OS
+ repository with GPG signature verification via the vajra-keyring package.
+ .
+ After installation, users can run 'apt update' to fetch the Vajra OS
+ package catalog and install Vajra tools with 'apt install vajra-*'.
 
 Package: vajra-update-manager
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 4
-Filename: pool/main/v/vajra-update-manager/vajra-update-manager_1.0.0_all.deb
-Size: 3380
-MD5sum: b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3
-SHA256: f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5
-Section: admin
+Version: 1.0.0
 Priority: optional
-Description: Vajra OS Update Manager - system updates with rollback
+Section: admin
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 17
+Depends: python3, apt, dpkg
+Recommends: timeshift, unattended-upgrades
+Filename: pool/main/v/vajra-update-manager/vajra-update-manager_1.0.0_all.deb
+Size: 3906
+MD5sum: da082d5af39ad6c934e6fad0a158ccf6
+SHA1: d875772728c6c7a53649df22e9523b8a1c67e616
+SHA256: 62fe31acf7ec340d0fa500df103452173aa35db3b52b6c8f7a2e7cb7369354ab
+SHA512: ec5b99747674013f3cf39b0f6059eafa0a0c27589ec06d2b9300ac79ac3dcf9424a79c445be4ef3af5c218e915f87a8cf2af6043290715a13b2ef37acd09e927
+Homepage: https://vajra-os.org
+Description: Vajra OS Update Manager — check, install, rollback with snapshots
+ Update manager for Vajra OS with pre-update snapshots and rollback support.
+ .
+ Features:
+  * Check for available updates
+  * Install updates with automatic pre-update snapshot
+  * Rollback to previous state from snapshot
+  * Kernel-specific update support
+  * Update history log
+  * Automatic update configuration (security or full)
+  * System cleanup (unused packages, cache, logs)
+  * Manual snapshot creation
 
 Package: vajra-wallpapers
-Version: 1.0.0
 Architecture: all
-Maintainer: Vajra OS <packages@vajra-os.org>
-Installed-Size: 1
-Filename: pool/main/v/vajra-wallpapers/vajra-wallpapers_1.0.0_all.deb
-Size: 1012
-MD5sum: c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4
-SHA256: a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6
-Section: x11
+Version: 1.0.0
 Priority: optional
+Section: x11
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Installed-Size: 94
+Filename: pool/main/v/vajra-wallpapers/vajra-wallpapers_1.0.0_all.deb
+Size: 82294
+MD5sum: 4c6a566d894624330097e0a767ded105
+SHA1: 0ff242e934c2418a18a39b14136f7715278980d6
+SHA256: 5605b0c98d0dc35b21866fcae0a130edb0d19d6278b548b961bbf7e7d487ef40
+SHA512: 7fcc4fb0626bff1901f34c0b4a9ec06bb416bce40e46f08297d864e4a96d97979b426499d694fc0527c5a283a4ded53b4f9de7cfab8638a1ee3c1e423be53587
+Homepage: https://ksraj20009.github.io/vajra-os/
 Description: Vajra OS Default Wallpapers
+ Default tricolor diamond wallpaper pack for the Vajra OS desktop.
+ Ships the generated Vajra diamond wallpaper (1920x1080) as
+ /usr/share/backgrounds/vajra/vajra-default.png.
+
