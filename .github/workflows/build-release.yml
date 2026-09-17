@@ -1,0 +1,178 @@
+name: Build Release Artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'core/**'
+      - 'ai/**'
+      - 'apps/**'
+      - 'branding/**'
+      - 'packaging/**'
+      - 'iso/**'
+      - '.github/workflows/build-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq dpkg-dev debhelper devscripts gnupg apt-utils binutils
+
+      - name: Generate APT signing key
+        run: |
+          export GNUPGHOME=$(mktemp -d)
+          echo "$GNUPGHOME" > /tmp/gnupghome
+          cat > /tmp/keyspec <<'EOF'
+          %no-protection
+          Key-Type: RSA
+          Key-Length: 3072
+          Name-Real: Vajra OS APT Repository
+          Name-Email: packages@vajra-os.org
+          Expire-Date: 0
+          %commit
+          EOF
+          sed -i 's/^          //' /tmp/keyspec
+          gpg --batch --gen-key /tmp/keyspec
+          gpg --batch --yes --armor --export packages@vajra-os.org > packaging/keys/vajra-archive-keyring.asc
+          gpg --list-keys
+
+      - name: Populate package sources from repo
+        run: |
+          set -e
+          # vajra-core: 8 OS managers
+          mkdir -p packaging/vajra-core/src
+          for f in vajra-boot-manager.sh vajra-process-manager.py vajra-memory-manager.py \
+                   vajra-filesystem-manager.py vajra-device-manager.py vajra-display-server.sh \
+                   vajra-service-manager.py vajra-user-session-manager.py; do
+            cp "core/$f" packaging/vajra-core/src/
+          done
+          # single-tool packages
+          mkdir -p packaging/vajra-security-center/src
+          cp core/vajra-security-center.py packaging/vajra-security-center/src/
+          mkdir -p packaging/vajra-control-center/src
+          cp core/vajra-control-center.py packaging/vajra-control-center/src/
+          mkdir -p packaging/vajra-package-manager/src
+          cp core/vajra-package-manager.py packaging/vajra-package-manager/src/
+          mkdir -p packaging/vajra-update-manager/src
+          cp core/vajra-update-manager.py packaging/vajra-update-manager/src/
+          # Buddhi AI
+          mkdir -p packaging/vajra-buddhi-ai/src
+          cp ai/buddhi-ai.py packaging/vajra-buddhi-ai/src/
+          # keyring (dearmored from the freshly generated signing key)
+          mkdir -p packaging/vajra-keyring/src
+          export GNUPGHOME=$(cat /tmp/gnupghome)
+          gpg --batch --yes --dearmor < packaging/keys/vajra-archive-keyring.asc > packaging/vajra-keyring/src/vajra-archive-keyring.gpg
+          # desktop: entries + icons
+          mkdir -p packaging/vajra-desktop/src
+          cp apps/desktop-entries/*.desktop packaging/vajra-desktop/src/
+          cp branding/icons/vajra-*-48x48.png packaging/vajra-desktop/src/ || true
+          cp branding/icons/vajra-logo-256x256.png packaging/vajra-desktop/src/ || true
+          # wallpapers
+          mkdir -p packaging/vajra-wallpapers/src
+          cp branding/wallpapers/vajra-default.png packaging/vajra-wallpapers/src/vajra-default.png
+          # make sure all rules are executable
+          chmod +x packaging/vajra-*/debian/rules
+
+      - name: Build all packages
+        run: |
+          cd packaging
+          OK=0; FAIL=0; FAILED=""
+          for pkg in vajra-core vajra-security-center vajra-control-center vajra-package-manager \
+                     vajra-update-manager vajra-buddhi-ai vajra-keyring vajra-desktop \
+                     vajra-wallpapers vajra-sources; do
+            echo "=== Building $pkg ==="
+            if (cd "$pkg" && dpkg-buildpackage -us -uc -b > /tmp/build-$pkg.log 2>&1); then
+              echo "  [+] OK: $pkg"
+              OK=$((OK+1))
+            else
+              echo "  [-] FAILED: $pkg"
+              tail -30 /tmp/build-$pkg.log || true
+              FAIL=$((FAIL+1)); FAILED="$FAILED $pkg"
+            fi
+          done
+          echo "Built: $OK  Failed: $FAIL ($FAILED)"
+          ls -la *.deb || true
+          if [ "$OK" -lt 8 ]; then
+            echo "ERROR: expected at least 8 of 10 packages to build, got $OK"
+            exit 1
+          fi
+
+      - name: Verify packages
+        run: |
+          cd packaging
+          for deb in *.deb; do
+            echo "--- $deb ---"
+            dpkg-deb --info "$deb" | head -6
+            dpkg-deb --contents "$deb" | head -5
+          done
+
+      - name: Create packages tarball
+        run: |
+          cd packaging
+          sha256sum *.deb > SHA256SUMS
+          tar czf ../vajra-os-packages.tar.gz *.deb SHA256SUMS
+          echo "Packages tarball:"
+          ls -la ../vajra-os-packages.tar.gz
+
+      - name: Build ISO
+        run: |
+          python3 -m pip install --user pycdlib
+          sudo mkdir -p /scratch/work
+          sudo chown -R $(id -u):$(id -g) /scratch
+          python3 iso/build-iso.py --output vajra-os-1.0-amd64.iso
+          ls -la vajra-os-1.0-amd64.iso
+
+      - name: Upload artifacts to release
+n        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload v1.0.0 vajra-os-1.0-amd64.iso vajra-os-packages.tar.gz --clobber
+          echo "Release assets updated"
+
+      - name: Publish APT repository to gh-pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "vajra-bot"
+          git config user.email "actions@github.com"
+          git clone --quiet --branch gh-pages "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/pages
+          cd /tmp/pages/apt-repo
+          mkdir -p pool/main/v
+          for deb in "$GITHUB_WORKSPACE"/packaging/*.deb; do
+            name=$(basename "$deb" | sed 's/_1\.0\.0_.*//')
+            mkdir -p "pool/main/v/$name"
+            cp "$deb" "pool/main/v/$name/"
+          done
+          # Regenerate package index with real checksums
+          apt-ftparchive packages pool > dists/vajra/main/binary-all/Packages
+          gzip -9kf dists/vajra/main/binary-all/Packages
+          # Regenerate signed Release metadata with the same key as the keyring deb
+          export GNUPGHOME=$(cat /tmp/gnupghome)
+          cd dists/vajra
+          apt-ftparchive \
+            -o APT::FTPArchive::Release::Origin="Vajra OS" \
+            -o APT::FTPArchive::Release::Suite="vajra" \
+            -o APT::FTPArchive::Release::Codename="vajra" \
+            -o APT::FTPArchive::Release::Architectures="all" \
+            -o APT::FTPArchive::Release::Components="main" \
+            -o APT::FTPArchive::Release::Description="Vajra OS APT Repository" \
+            release . > Release
+          gpg --batch --yes --armor --detach-sign --local-user packages@vajra-os.org -o Release.gpg Release
+          gpg --batch --yes --clearsign --local-user packages@vajra-os.org -o InRelease Release
+          # Publish the matching public key
+          gpg --batch --yes --armor --export packages@vajra-os.org > ../../vajra-archive-keyring.asc
+          cd /tmp/pages
+          git add apt-repo
+          git commit -m "apt: publish packages with signed metadata" || echo "no changes"
+          git push origin gh-pages
+n
