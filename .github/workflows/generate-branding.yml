@@ -1,0 +1,44 @@
+name: Generate Branding Assets
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'branding/generate-all-branding.py'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Pillow
+        run: python3 -m pip install --user pillow
+
+      - name: Generate assets
+        run: python3 branding/generate-all-branding.py
+
+      - name: Verify output
+        run: |
+          count=$(find branding -name '*.png' | wc -l)
+          echo "Generated $count PNG files"
+          if [ "$count" -lt 26 ]; then
+            echo "ERROR: expected at least 26 assets, got $count"
+            exit 1
+          fi
+
+      - name: Commit generated assets
+        run: |
+          git config user.name "vajra-bot"
+          git config user.email "actions@github.com"
+          git add branding/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(branding): regenerate assets from generate-all-branding.py"
+            git push
+          fi
