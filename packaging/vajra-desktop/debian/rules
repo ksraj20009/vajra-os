@@ -1,3 +1,18 @@
 #!/usr/bin/make -f
 %:
 	dh $@
+
+override_dh_auto_install:
+	install -d $(CURDIR)/debian/vajra-desktop/usr/share/applications
+	install -d $(CURDIR)/debian/vajra-desktop/usr/share/icons/hicolor/48x48/apps
+	install -d $(CURDIR)/debian/vajra-desktop/usr/share/icons/hicolor/256x256/apps
+	set -e; for f in $(CURDIR)/src/*.desktop; do \
+		install -m 644 "$$f" $(CURDIR)/debian/vajra-desktop/usr/share/applications/; \
+	done
+	set -e; for f in $(CURDIR)/src/vajra-*-48x48.png; do \
+		name=$$(basename "$$f" -48x48.png); \
+		install -m 644 "$$f" $(CURDIR)/debian/vajra-desktop/usr/share/icons/hicolor/48x48/apps/$$name.png; \
+	done
+	set -e; if [ -f $(CURDIR)/src/vajra-logo-256x256.png ]; then \
+		install -m 644 $(CURDIR)/src/vajra-logo-256x256.png $(CURDIR)/debian/vajra-desktop/usr/share/icons/hicolor/256x256/apps/vajra.png; \
+	fi

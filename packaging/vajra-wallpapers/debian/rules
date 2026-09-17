@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_install:
+	install -d $(CURDIR)/debian/vajra-wallpapers/usr/share/backgrounds/vajra
+	install -m 644 $(CURDIR)/src/vajra-default.png \
+		$(CURDIR)/debian/vajra-wallpapers/usr/share/backgrounds/vajra/vajra-default.png

@@ -1,0 +1,15 @@
+Source: vajra-wallpapers
+Section: x11
+Priority: optional
+Maintainer: Vajra OS Team <packages@vajra-os.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.5.0
+Homepage: https://ksraj20009.github.io/vajra-os/
+
+Package: vajra-wallpapers
+Architecture: all
+Depends: ${misc:Depends}
+Description: Vajra OS Default Wallpapers
+ Default tricolor diamond wallpaper pack for the Vajra OS desktop.
+ Ships the generated Vajra diamond wallpaper (1920x1080) as
+ /usr/share/backgrounds/vajra/vajra-default.png.
