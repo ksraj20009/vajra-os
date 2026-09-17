@@ -123,11 +123,12 @@ else
 fi
 
 # --- 7. Publish the APT repository to gh-pages -------------------------------
-git config user.name "vajra-bot"
-git config user.email "actions@github.com"
 git clone --quiet --branch gh-pages \
   "https://x-access-token:${GH_TOKEN}@github.com/${REPO_SLUG}.git" /tmp/pages \
   || fail "could not clone gh-pages"
+# identity must be set in the CLONE, not the workspace checkout
+git -C /tmp/pages config user.name "vajra-bot"
+git -C /tmp/pages config user.email "actions@github.com"
 cd /tmp/pages/apt-repo || fail "no apt-repo on gh-pages"
 
 mkdir -p pool/main/v
@@ -156,7 +157,11 @@ gpg --batch --yes --armor --export packages@vajra-os.org > ../../vajra-archive-k
 
 cd /tmp/pages || fail "lost pages clone"
 git add apt-repo
-git commit -m "apt: publish packages with signed metadata" || echo "no changes to commit"
-git push origin gh-pages || fail "could not push gh-pages"
+if git diff --cached --quiet; then
+  echo "[!] no changes to publish"
+else
+  git commit -m "apt: publish packages with signed metadata" || fail "git commit failed"
+  git push origin gh-pages || fail "could not push gh-pages"
+fi
 echo "[+] APT repository published"
 echo "Done."
