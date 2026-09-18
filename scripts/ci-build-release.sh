@@ -17,7 +17,7 @@ echo "============================================"
 
 # --- 1. Build dependencies -------------------------------------------------
 sudo apt-get update -qq
-sudo apt-get install -y -qq dpkg-dev debhelper devscripts gnupg apt-utils binutils \
+sudo apt-get install -y -qq dpkg-dev debhelper devscripts gnupg apt-utils binutils qemu-system-x86 \
   || fail "could not install build dependencies"
 
 # --- 2. Generate the APT signing key ---------------------------------------
@@ -111,6 +111,9 @@ sudo mkdir -p /scratch/work
 sudo chown -R "$(id -u):$(id -g)" /scratch
 python3 iso/build-iso.py --output vajra-os-1.0-amd64.iso || fail "ISO build failed"
 ls -la vajra-os-1.0-amd64.iso
+
+# --- 5a. Boot-test the ISO (nothing unbootable gets published) ---------------
+python3 iso/boot-test.py --iso vajra-os-1.0-amd64.iso || fail "ISO boot test failed"
 
 # --- 5b. Build the Docker rootfs ---------------------------------------------
 python3 iso/build-rootfs.py --output vajra-os-rootfs.tar.gz || fail "rootfs build failed"

@@ -13,7 +13,12 @@ sync
 
 Test in QEMU:
 ```bash
-sudo apt install qemu-system-x86 ovmf
+sudo apt install qemu-system-x86
+# Automated headless boot test (serial console, no display needed)
+python3 iso/boot-test.py --iso vajra-os-1.0-amd64.iso
+
+# Or interactive test with a window
+sudo apt install ovmf
 ./iso/test-vajra-iso.sh vajra-os-1.0-amd64.iso
 ```
 
@@ -22,7 +27,7 @@ sudo apt install qemu-system-x86 ovmf
 ### Prerequisites (any Linux machine)
 
 ```bash
-sudo apt install python3 python3-pip xorriso qemu-system-x86 ovmf
+sudo apt install python3 python3-pip qemu-system-x86 ovmf
 pip3 install pycdlib
 ```
 
@@ -36,7 +41,8 @@ cd vajra-os
 # Build the ISO (downloads kernel + BusyBox, builds initramfs, creates bootable ISO)
 python3 iso/build-iso.py
 
-# The ISO will be at: vajra-os-1.0-amd64.iso (41.5 MB)
+# Verify it boots (QEMU, ~2 minutes)
+python3 iso/boot-test.py
 ```
 
 ### What the build does
@@ -54,42 +60,28 @@ python3 iso/build-iso.py
    - GRUB config for UEFI boot menu
    - 3 boot options: default, debug, serial console
 
-### Using xorriso (alternative)
-
-If you have xorriso, you can build a more complete ISO:
-
-```bash
-sudo apt install xorriso isolinux syslinux-common grub-pc-bin grub-efi-amd64-bin
-
-xorriso -as mkisofs \
-  -o vajra-os-1.0-amd64.iso \
-  -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
-  -c boot.cat \
-  -b vmlinuz \
-  -no-emul-boot -boot-load-size 4 -boot-info-table \
-  -eltorito-alt-boot \
-  -e boot/efi/boot/bootx64.efi \
-  -no-emul-boot -isohybrid-gpt-hfsplus \
-  -V "VAJRA_OS_1.0" \
-  -J -R \
-  .
-```
-
 ## Building Debian Packages
 
 ```bash
 # Build all .deb packages
+sudo apt install dpkg-dev debhelper devscripts
 cd packaging/
 ./build-all-packages.sh
 
-# Packages will be in: packaging/output/
+# Packages will be in: packaging/
 ```
+
+Note: CI builds all 10 packages with sources populated automatically — see
+`scripts/ci-build-release.sh` for the authoritative build recipe.
 
 ## Building Docker Image
 
 ```bash
-# Import the rootfs tarball as a Docker image
-docker import vajra-os-rootfs.tar vajra-os:1.0
+# Download vajra-os-rootfs.tar.gz from the release, then:
+docker import vajra-os-rootfs.tar.gz vajra-os:1.0
+
+# Or rebuild the rootfs yourself
+python3 iso/build-rootfs.py
 
 # Or build from Dockerfile
 docker build -t vajra-os:1.0 -f docker/Dockerfile.vajra .
@@ -100,14 +92,14 @@ docker run -it vajra-os:1.0
 
 ## APT Repository
 
-The APT repository is hosted in this repo at `apt-repo/`. To use it:
+The APT repository is published to the `gh-pages` branch (`apt-repo/`). To use it:
 
 ```bash
-# Import GPG key
-curl -fsSL https://raw.githubusercontent.com/ksraj20009/vajra-os/main/apt-repo/vajra-archive-keyring.asc | gpg --dearmor -o /usr/share/keyrings/vajra-archive-keyring.gpg
+# Import GPG key (from gh-pages, where the packages live)
+curl -fsSL https://raw.githubusercontent.com/ksraj20009/vajra-os/gh-pages/apt-repo/vajra-archive-keyring.asc | gpg --dearmor -o /usr/share/keyrings/vajra-archive-keyring.gpg
 
 # Add repository
-echo "deb [signed-by=/usr/share/keyrings/vajra-archive-keyring.gpg] https://raw.githubusercontent.com/ksraj20009/vajra-os/main/apt-repo vajra main" | sudo tee /etc/apt/sources.list.d/vajra.list
+echo "deb [signed-by=/usr/share/keyrings/vajra-archive-keyring.gpg] https://raw.githubusercontent.com/ksraj20009/vajra-os/gh-pages/apt-repo vajra main" | sudo tee /etc/apt/sources.list.d/vajra.list
 
 # Install
 sudo apt update
@@ -126,7 +118,7 @@ sudo apt install vajra-core vajra-security-center vajra-control-center
 | Buddhi AI | 1 | 49 KB |
 | Disk installer | 1 | 10 KB |
 | GPG public key | 1 | 1 KB |
-| **Total ISO** | | **41.5 MB** |
+| **Total ISO** | | **43.5 MB** |
 
 ## Boot Modes
 
@@ -137,9 +129,9 @@ sudo apt install vajra-core vajra-security-center vajra-control-center
 ## Architecture
 
 ```
-vajra-os-1.0-amd64.iso (41.5 MB)
+vajra-os-1.0-amd64.iso (43.5 MB)
 ├── /vmlinuz              — Linux kernel 6.6.142
-├── /initramfs.cpio.gz    — Root filesystem (27.5 MB)
+├── /initramfs.cpio.gz    — Root filesystem (28.8 MB)
 │   ├── /bin/             — BusyBox + Vajra tools
 │   ├── /usr/bin/         — Buddhi AI + Vajra tools
 │   ├── /usr/share/vajra/ — 279 utility scripts
