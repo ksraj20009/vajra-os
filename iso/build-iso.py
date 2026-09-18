@@ -46,10 +46,37 @@ def make_cpio(entries):
         ns = len(nb)
         np_ = (4 - (110 + ns) % 4) % 4
         cp_ = (4 - len(content) % 4) % 4
-        h = f"070701{0:08X}{0:08X}{mode:08X}{0:08X}{0:08X}{1:08X}{0:08X}{len(content):08X}{0:08X}{0:08X}{ns:08X}{0:08X}"
+        # standard newc header: magic + 13 fields of 8 hex chars = 110 bytes
+        h = ("070701"
+             f"{0:08X}"            # c_ino
+             f"{mode:08X}"          # c_mode
+             f"{0:08X}"            # c_uid
+             f"{0:08X}"            # c_gid
+             f"{1:08X}"            # c_nlink
+             f"{0:08X}"            # c_mtime
+             f"{len(content):08X}"  # c_filesize
+             f"{0:08X}"            # c_devmajor
+             f"{0:08X}"            # c_devminor
+             f"{0:08X}"            # c_rdevmajor
+             f"{0:08X}"            # c_rdevminor
+             f"{ns:08X}"           # c_namesize
+             f"{0:08X}")           # c_check
         data += h.encode() + nb + b'\0'*np_ + content + b'\0'*cp_
     t = b"TRAILER!!!\0"
-    h = f"070701{0:08X}{0:08X}{0:08X}{0:08X}{0:08X}{1:08X}{0:08X}{0:08X}{0:08X}{0:08X}{len(t):08X}{0:08X}"
+    h = ("070701"
+         f"{0:08X}"
+         f"{0:08X}"
+         f"{0:08X}"
+         f"{0:08X}"
+         f"{1:08X}"
+         f"{0:08X}"
+         f"{0:08X}"
+         f"{0:08X}"
+         f"{0:08X}"
+         f"{0:08X}"
+         f"{0:08X}"
+         f"{len(t):08X}"
+         f"{0:08X}")
     data += h.encode() + t
     data += b'\0' * ((512 - len(data) % 512) % 512)
     return data
