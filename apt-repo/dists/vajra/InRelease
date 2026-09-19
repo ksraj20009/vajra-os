@@ -4,37 +4,37 @@ Hash: SHA512
 Architectures: all
 Codename: vajra
 Components: main
-Date: Sat, 19 Sep 2026 16:31:29 +0000
+Date: Sat, 19 Sep 2026 16:34:02 +0000
 Description: Vajra OS APT Repository
 Origin: Vajra OS
 Suite: vajra
 MD5Sum:
- a304cd491916c770b3628c81b66ba990              157 Release
- fb78d18bdc9832f91562416102d96008            13148 main/binary-all/Packages
- 59fcdb4a897ef664736b4ea13e1752bb             5533 main/binary-all/Packages.gz
+ a0bbd277172958fde8739d0a55deea11              157 Release
+ 72f8f21b233060097aeb2987ef7cbf43            13148 main/binary-all/Packages
+ 44d3e9b1f44594a717f0c6a780b90f1d             5530 main/binary-all/Packages.gz
 SHA1:
- b8e06af4717b41ca908ecfef7abe0d4c34677806              157 Release
- e3541e54c0d85d255822573f91441c31ee672b3f            13148 main/binary-all/Packages
- 0d4762507fa21657d4e9bdc561788f301647f5a5             5533 main/binary-all/Packages.gz
+ 1feec1497374a93aefccbac6bfe0f9d33e451d08              157 Release
+ 4c1e159f7a3987f9180d0a5d64576943c27876f7            13148 main/binary-all/Packages
+ a5836a5622ed6908229eeeebd4b210e6f21813b7             5530 main/binary-all/Packages.gz
 SHA256:
- 2c25dd75ec11c08e389672b5fa5c5bb05902ec5949b55ded63dba5cbde417f3a              157 Release
- 73215b3c630a17984c0c3e58d1e62f8e6c9bec942bfaf65dfc4285be64d0697e            13148 main/binary-all/Packages
- 668e89138a204d072b73f6d552d419d850bb18a6e4fc12d3e072afae808ed75c             5533 main/binary-all/Packages.gz
+ 686c877efaf7a82244c14722a9ceeeb369c6ccddcf42f1eac1e2db1785f1a2f6              157 Release
+ f476cc1c5daf1ef2aae31103b08c6990769d45c0e3db9f7c43ba5e563c83ef2c            13148 main/binary-all/Packages
+ f9e6e86284655aeff81eda9c0fcf28d64ae0bab596a6914d343c21deff68208a             5530 main/binary-all/Packages.gz
 SHA512:
- 94f665cf0a1fcdf6b234bf457230405d7e47c3544eca8ca8fa04b9c09d6f828442cee5b88603e7cd715f95e0587520291b23b605eca9ca10436d7f9c1abf867b              157 Release
- 9832ac33a4894efe2365280b664bf30ee0eb464765573975974907607013a0aae7d1916247fced5e48b2ee88271f5db934476319a88f85764bf7593d9d5ba4a9            13148 main/binary-all/Packages
- 66b8686c3c35673e908f63d65fd27bd78d85905defae14789989d967ce0f5135ef99f1d0a6d5b82b7fa2e1df6355c6b9efc9f269075f0f3714d418a97327027c             5533 main/binary-all/Packages.gz
+ df617d57af05827acd8e3cad98b27ad194f4b4ef7592bcd5e24af57230242bd091249ced70a5ad22f3f1bc43c57ff0303ea5ff18d30226ac1e9667dbb25eedfd              157 Release
+ 7e89d78e9d949545e6cabdd7b940bd59b083d7a012367d30a31485079155af51d47201e0ae38f7e1635c68280b33d0239211f6eeb3fbfa12061b938cdfc36658            13148 main/binary-all/Packages
+ 10a0b25482b6ba371dac275927ca0ad7039281f9788aa3f95d7185437a6320faadaf99569302ad6b70a0a68430e3451402b1fd375ef0562fadb3b4e3f85adae2             5530 main/binary-all/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQHKBAEBCgA0FiEEiJrzeZN2ZG9cYNhj6T79EISUKxQFAmquuOEWHHBhY2thZ2Vz
-QHZhanJhLW9zLm9yZwAKCRDpPv0QhJQrFF4QDACAOJljEDkVRoIF4Zw5xNpE1HAy
-maD02Yp7GFTO3N/knJQTKFF+HETqAp/kp6bfOSkMJHptvP7jdrGEuvkjgnfreg7N
-3XPFwzi7U+4JqcsRZYDU7EMHDAiTCimcyoaudD8QUhdrKAaeW8MhvFBH+nqdfYr7
-bKiXEEH1I3Kmm934/GLkl7vWUuLB83nCNea6M5oUbRCp5K3SYgJ5/E7wIMJ8i0r/
-Z7gzXQaqeLxRJLbvbr7DgkPlO8BiqWHiFr0+SK75BDYsZMJtg75VhNhBYLhqJtJH
-n6ksTNBix69u6NJMWmjEiOMFhG3tWAApvpn+VZ/L+qKfSxXEAF1/xNNqxvzbOT8i
-Avr4k1/AVfONfSnhFPeT3mpL3++j3MCiONAw5uQdBceH6eLwmYwVw06Rvmiw+6rf
-lsbZcA3kuB+SLeBQs2U5Hbw40+JgwzRC2tprNVveVcrswaBJ64HbEIbj84E5MLWo
-oOnAOrN1s44N7i8ObvcG6xrB9FgNpQ+P5ubMiyY=
-=pwxx
+iQHKBAEBCgA0FiEExuTtwQm2hTOkFl0f1Hhu5IrvgtEFAmquuXsWHHBhY2thZ2Vz
+QHZhanJhLW9zLm9yZwAKCRDUeG7kiu+C0XadDACbSO0QMk0RiVA1D9qKVmuOSt4d
+hmVc7m4kousYwImlMyK3Kti5wVFFMa5EMbJ60nN88mYvMMG8M+mMX7AEbM61gqRa
+H90Kut2COwadgeNdwJCxAf4+2wtrE7OH4pxKIv9szm8pU417s6MPpIyHONxGGV8M
+1kgMumh3S7Pr6r2qKUbsmaX8TvTr9oImYBBJucyyuxkEqzueOsTbIjVfxS3KD6Il
+XBlYiU0UBQYKbv/9LBnxptruC/iEiG8POYiHK9NvFua3VTWm2EIkrAqiQgMegbbI
+Aytfnm17OutlvOLz7lyF/Qm7UiKuQOycjCG9HC0Snc5qHp33ZL5A0bj6RcjNvMKW
+9Hp+S+Kuekh4hJMHaoTuf34E1HbdwQae2yJequ2f85IAKk/16B/jKZbxwrln3K7A
+qiHgmfyOSXmhM62ixvyV/q5kzzmMXio5F+kufInpf0TsovfogQrbNLZG5laLJM8J
+HodL6zBH5E2yXBU5mthqYMKOEepxaV5dgQO51hg=
+=rtkJ
 -----END PGP SIGNATURE-----

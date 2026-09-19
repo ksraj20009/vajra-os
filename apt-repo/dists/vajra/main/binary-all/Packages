@@ -147,11 +147,11 @@ Maintainer: Vajra OS Team <packages@vajra-os.org>
 Installed-Size: 10
 Depends: gnupg
 Filename: pool/main/v/vajra-keyring/vajra-keyring_1.0.0_all.deb
-Size: 2220
-MD5sum: f0ee6153c7fdd954152ba1607d74ba16
-SHA1: a7f40aae9db627f9e648ffee065a78ddbdca7157
-SHA256: 96ce4f058aaf9cf6e90f1bc614032931163924b5857b212daa485d9ba882cad5
-SHA512: ad09f3e4b1c09f70b0acb4c9f1132ba401a44d015baff679cca1128c0470ea38cf9fe29c69f596b1ce010f144894e44561ed874a7a5d58f310534a93aee89026
+Size: 2222
+MD5sum: d2315ae74edae8edb90615cd0a51ecb6
+SHA1: 2618f470df3b2f9bf369e98cdbf9ce49acb94740
+SHA256: 8a1e5c876ba305465232a0c022b30dfe05ddfaebfb9b3a38972b81660e77a9e3
+SHA512: 56d7589937a4cf1a8e2ab24e3600c698e229b6984e60a74e0c02af36c9fe76f055bf8a8a6fd72d45475499b233ba9d0812e4c57f6509157714f26fac9582ab06
 Homepage: https://vajra-os.org
 Description: Vajra OS repository signing key
  Contains the GPG public key used to sign the Vajra OS APT repository.
