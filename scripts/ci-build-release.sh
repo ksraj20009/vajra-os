@@ -18,7 +18,7 @@ echo "============================================"
 # --- 1. Build dependencies -------------------------------------------------
 sudo apt-get update -qq
 sudo apt-get install -y -qq dpkg-dev debhelper devscripts gnupg apt-utils binutils qemu-system-x86 \
-  isolinux syslinux-common syslinux-utils grub-efi-amd64-bin grub-common ovmf \
+  isolinux syslinux-common syslinux-utils grub-efi-amd64-bin grub-common ovmf dosfstools mtools \
   || fail "could not install build dependencies"
 
 # --- 2. Generate the APT signing key ---------------------------------------
