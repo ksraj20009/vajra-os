@@ -160,7 +160,6 @@ def build_grub_standalone(work, grub_cfg):
     out = work / "bootx64.efi"
     r = subprocess.run(
         [mk, "-O", "x86_64-efi", "-o", str(out),
-         "--install-modules=part_msdos part_gpt iso9660 normal boot linux search search_fs_file ls echo",
          "boot/grub/grub.cfg=" + str(cfg_dir / "boot" / "grub" / "grub.cfg")],
         capture_output=True, text=True)
     if r.returncode != 0 or not out.exists():
@@ -429,11 +428,17 @@ def build_iso(output_path="vajra-os-1.0-amd64.iso"):
 set default=0
 menuentry "Vajra OS 1.0" {
     search --no-floppy --file /vmlinuz --set=root
+    if [ ! -f /vmlinuz ]; then set root=(cd0); fi
+    echo "GRUB: booting from $root"
+    ls
     linux /vmlinuz console=tty0 quiet
     initrd /initramfs.cpio.gz
 }
 menuentry "Vajra OS 1.0 (Serial Console)" {
     search --no-floppy --file /vmlinuz --set=root
+    if [ ! -f /vmlinuz ]; then set root=(cd0); fi
+    echo "GRUB: booting from $root"
+    ls
     linux /vmlinuz console=ttyS0,115200
     initrd /initramfs.cpio.gz
 }
