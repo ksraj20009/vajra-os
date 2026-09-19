@@ -18,6 +18,7 @@ echo "============================================"
 # --- 1. Build dependencies -------------------------------------------------
 sudo apt-get update -qq
 sudo apt-get install -y -qq dpkg-dev debhelper devscripts gnupg apt-utils binutils qemu-system-x86 \
+  isolinux syslinux-common syslinux-utils grub-efi-amd64-bin grub-common ovmf \
   || fail "could not install build dependencies"
 
 # --- 2. Generate the APT signing key ---------------------------------------
@@ -38,8 +39,9 @@ gpg --list-keys --fingerprint || true
 
 # --- 3. Populate package sources from the repo tree ------------------------
 mkdir -p packaging/vajra-core/src
-for f in vajra-boot-manager.sh vajra-process-manager.py vajra-memory-manager.py \
-         vajra-filesystem-manager.py vajra-device-manager.py vajra-display-server.sh \
+for f in vajra-boot-manager.sh vajra-process-manager.py \
+         vajra-memory-manager.py vajra-filesystem-manager.py \
+         vajra-device-manager.py vajra-display-server.sh \
          vajra-service-manager.py vajra-user-session-manager.py; do
   cp "core/$f" packaging/vajra-core/src/ || fail "missing core/$f"
 done
@@ -96,7 +98,6 @@ ls -la ./*.deb || true
 for deb in ./*.deb; do
   echo "--- $deb ---"
   dpkg-deb --info "$deb" | head -6
-  dpkg-deb --contents "$deb" | head -5
 done
 
 sha256sum ./*.deb > SHA256SUMS
