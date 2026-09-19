@@ -169,6 +169,37 @@ def build_grub_standalone(work, grub_cfg):
     print(f"  [+] GRUB standalone EFI: {out.stat().st_size:,} bytes")
     return out
 
+def build_efiboot_img(work, bootx64_path):
+    """Wrap bootx64.efi in a small FAT image.
+
+    UEFI firmware (including OVMF) cannot execute a raw PE binary from an
+    El Torito 0xEF entry — it exposes the boot image as a block device and
+    then looks for the EFI/BOOT/BOOTX64.EFI file on it. So the El Torito
+    UEFI entry must point at a FAT filesystem image containing the binary
+    (this is exactly what every major distro ISO does with efiboot.img).
+    """
+    if not (shutil.which("mkfs.vfat") and shutil.which("mcopy")):
+        print("  [-] mkfs.vfat/mcopy not available — UEFI CD boot needs dosfstools+mtools")
+        return None
+    img = work / "efiboot.img"
+    if img.exists():
+        img.unlink()
+    size_mb = max(4, (bootx64_path.stat().st_size // (1024*1024)) + 3)
+    with open(img, "wb") as f:
+        f.truncate(size_mb * 1024 * 1024)
+    r = subprocess.run(["mkfs.vfat", "-n", "VAJRA_EFI", str(img)], capture_output=True, text=True)
+    if r.returncode != 0:
+        print(f"  [-] mkfs.vfat failed: {r.stderr.strip()[:200]}")
+        return None
+    subprocess.run(["mmd", "-i", str(img), "::/EFI", "::/EFI/BOOT"], capture_output=True)
+    r = subprocess.run(["mcopy", "-i", str(img), str(bootx64_path), "::/EFI/BOOT/BOOTX64.EFI"],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        print(f"  [-] mcopy failed: {r.stderr.strip()[:200]}")
+        return None
+    print(f"  [+] efiboot.img (FAT, {size_mb} MB): {img.stat().st_size:,} bytes")
+    return img
+
 INSTALLER_SCRIPT = r"""#!/bin/busybox sh
 # ============================================================================
 # Vajra OS Installer v2 - installs Vajra OS to a hard disk or clones to USB
@@ -675,6 +706,9 @@ DISPLAY /boot.msg
     # 7. Build the ISO
     print("\n[7/7] Building bootable ISO...")
 
+    # UEFI CD boot needs the EFI binary wrapped in a FAT image (see build_efiboot_img)
+    efiboot = build_efiboot_img(WORK, bootx64) if (bootx64 and bootx64.exists()) else None
+
     iso = pycdlib.PyCdlib()
     iso.new(interchange_level=3, joliet=True, rock_ridge="1.09", vol_ident=ISO_LABEL)
 
@@ -694,6 +728,8 @@ DISPLAY /boot.msg
         iso.add_directory("/EFI", rr_name="efi")
         iso.add_directory("/EFI/BOOT", rr_name="boot")
         iso.add_file(str(bootx64), "/EFI/BOOT/BOOTX64.EFI", rr_name="bootx64.efi")
+    if efiboot and efiboot.exists():
+        iso.add_file(str(efiboot), "/EFIBOOT.IMG", rr_name="efiboot.img")
 
     # README
     readme = WORK / "README.txt"
@@ -713,8 +749,21 @@ DISPLAY /boot.msg
         boot_info_table=True
     )
 
-    # El Torito UEFI boot
-    if bootx64 and bootx64.exists():
+    # El Torito UEFI boot: the FAT image (what UEFI firmware can actually boot)
+    if efiboot and efiboot.exists():
+        iso.add_eltorito(
+            "/EFIBOOT.IMG",
+            bootcatfile="/BOOT.CAT;1",
+            rr_bootcatname="boot.cat",
+            joliet_bootcatfile="/boot.cat",
+            platform_id=0xEF,
+            efi=True,
+            media_name="noemul",
+            bootable=True,
+            boot_info_table=False
+        )
+    elif bootx64 and bootx64.exists():
+        # best-effort fallback (raw EFI binary — boots only on firmware that supports it)
         iso.add_eltorito(
             "/EFI/BOOT/BOOTX64.EFI",
             bootcatfile="/BOOT.CAT;1",
