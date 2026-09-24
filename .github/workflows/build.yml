@@ -1,28 +1,44 @@
-name: Build Vajra OS
+name: Custom Kernel Build
 
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
+  push:
+    paths:
+      - 'kernel/**'
+
+permissions:
+  contents: write
 
 jobs:
-  build-kernel:
+  build-and-test-kernel:
     runs-on: ubuntu-22.04
+    timeout-minutes: 300
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Install build deps
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses-dev bison flex libssl-dev libelf-dev bc cpio kmod wget git
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential libncurses-dev bison flex \
+            libssl-dev libelf-dev bc cpio kmod git qemu-system-x86
+          python3 -m pip install --user pycdlib
+
       - name: Clone kernel source
         run: |
           git clone --depth=1 --branch v6.10 https://github.com/torvalds/linux.git kernel/linux
+
       - name: Apply Vajra OS patches
         run: |
           cd kernel/linux
-          for patch in ../../kernel/patches/*.patch; do
-            git apply "$patch" 2>/dev/null || echo "Patch skipped: $(basename $patch)"
+          for patch in ../patches/*.patch; do
+            if git apply "$patch"; then
+              echo "[+] applied: $(basename "$patch")"
+            else
+              echo "[!] skipped: $(basename "$patch")"
+            fi
           done
+
       - name: Apply Vajra OS kernel config
         run: |
           cd kernel/linux
@@ -30,132 +46,88 @@ jobs:
           while IFS= read -r line; do
             [[ "$line" =~ ^# ]] && continue
             [[ -z "$line" ]] && continue
-            key=$(echo "$line" | cut -d= -f1)
-            val=$(echo "$line" | cut -d= -f2)
-            if [ "$val" = "y" ]; then scripts/config --enable "$key"
-            elif [ "$val" = "n" ]; then scripts/config --disable "$key"
-            else scripts/config --set-str "$key" "$val"; fi
-          done < ../../kernel/configs/vajra.config
-          scripts/config --set-str LOCALVERSION "-vajra"
+            key="${line%%=*}"
+            val="${line#*=}"
+            val="${val%\"}"; val="${val#\"}"
+            case "$val" in
+              y) scripts/config --enable "$key" ;;
+              n) scripts/config --disable "$key" ;;
+              m) scripts/config --module "$key" ;;
+              *) scripts/config --set-str "$key" "$val" ;;
+            esac
+          done < ../configs/vajra.config
           make olddefconfig
+          echo "--- key config values ---"
+          grep -E "CONFIG_LOCALVERSION=|CONFIG_DEFAULT_HOSTNAME=|CONFIG_SECURITY_APPARMOR=" .config
+
       - name: Build kernel
         run: |
+          set -o pipefail
           cd kernel/linux
-          make -j$(nproc) 2>&1 | tail -5
-      - name: Build modules
+          make -j"$(nproc)" 2>&1 | tail -20
+          test -s arch/x86/boot/bzImage || { echo "[-] FATAL: bzImage was not built"; exit 1; }
+          echo "[+] bzImage: $(stat -c%s arch/x86/boot/bzImage) bytes"
+
+      - name: Build modules and package
         run: |
+          set -o pipefail
           cd kernel/linux
-          make modules -j$(nproc) 2>&1 | tail -5
-          mkdir -p ../../output
-          cp arch/x86/boot/bzImage ../../output/vajra-kernel-x86_64
-          make modules_install INSTALL_MOD_PATH=../../output/modules 2>&1 | tail -3
-      - name: Package kernel
-        run: |
-          cd output
+          make modules_install INSTALL_MOD_PATH="$GITHUB_WORKSPACE/output/modules" 2>&1 | tail -5
+          cp arch/x86/boot/bzImage "$GITHUB_WORKSPACE/output/vajra-kernel-x86_64"
+          cd "$GITHUB_WORKSPACE/output"
           tar czf vajra-kernel.tar.gz vajra-kernel-x86_64 modules/
           sha256sum vajra-kernel.tar.gz > vajra-kernel.tar.gz.sha256
-      - uses: actions/upload-artifact@v4
+          ls -la
+
+      - name: Boot-test the custom kernel (QEMU)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download v1.0.0 --repo "$GITHUB_REPOSITORY" \
+            --pattern vajra-os-1.0-amd64.iso --output vajra-os-1.0-amd64.iso
+          python3 - << 'EOF'
+          import pycdlib, subprocess, os, tempfile
+
+          iso = pycdlib.PyCdlib()
+          iso.open("vajra-os-1.0-amd64.iso")
+          iso.get_file_from_iso(local_path="initramfs.cpio.gz", iso_path="/INITRAMF.CPG")
+          iso.close()
+          print("[+] initramfs extracted")
+
+          log = tempfile.mktemp(suffix=".log")
+          cmd = ["qemu-system-x86_64", "-m", "512", "-accel", "tcg",
+                 "-kernel", "output/vajra-kernel-x86_64",
+                 "-initrd", "initramfs.cpio.gz",
+                 "-append", "console=ttyS0",
+                 "-display", "none", "-monitor", "none",
+                 "-serial", "file:" + log,
+                 "-no-reboot"]
+          try:
+              subprocess.run(cmd, timeout=600,
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+          except subprocess.TimeoutExpired:
+              pass  # expected - the OS drops to an interactive shell
+          out = open(log, errors="replace").read() if os.path.exists(log) else ""
+          print("---- serial console (tail) ----")
+          print(out[-2500:])
+          for marker in ["VAJRA OS 1.0", "Dharmo Rakshati Rakshitah"]:
+              assert marker in out, f"BOOT TEST FAILED: missing {marker!r}"
+          assert "-vajra" in out, "BOOT TEST FAILED: custom kernel version string not in uname -r"
+          print("[+] CUSTOM KERNEL BOOT TEST PASSED - v6.10-vajra boots to the Vajra OS shell")
+          EOF
+
+      - name: Upload kernel artifact
+        uses: actions/upload-artifact@v4
         with:
           name: vajra-kernel
           path: output/vajra-kernel.tar.gz
           retention-days: 90
 
-  build-iso:
-    needs: build-kernel
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download kernel artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: vajra-kernel
-          path: ./kernel-artifact
-      - name: Install live-build
+      - name: Upload kernel to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y live-build debootstrap squashfs-tools xorriso isolinux syslinux-common grub-pc-bin grub-efi-amd64-bin mtools
-      - name: Build ISO
-        run: |
-          mkdir -p vajra-lb && cd vajra-lb
-          lb config --distribution trixie --architecture amd64 --bootloaders syslinux,grub-efi --iso-volume VajraOS-1.0 --iso-application "Vajra OS" --mirror-bootstrap http://deb.debian.org/debian/ --mirror-binary http://deb.debian.org/debian/ --locale en_IN.UTF-8
-          cat > config/package-lists/vajra.list.chroot << 'PKG'
-          live-boot live-config systemd sudo wget curl tor firewalld apparmor python3 python3-pip python3-requests network-manager network-manager-gnome task-gnome-desktop gdm3 gnome-core gnome-terminal nautilus gedit firefox-esr htop neofetch git calamares calamares-settings-debian btrfs-progs pipewire pipewire-pulse espeak-ng xclip brightnessctl
-          PKG
-          mkdir -p config/includes.chroot/opt/vajra/{ai,privacy,scripts}
-          cp ../ai/buddhi-ai.py config/includes.chroot/opt/vajra/ai/ 2>/dev/null || true
-          cp ../privacy/* config/includes.chroot/opt/vajra/privacy/
-          cp ../scripts/*.sh config/includes.chroot/opt/vajra/scripts/
-          chmod +x config/includes.chroot/opt/vajra/ai/*.py config/includes.chroot/opt/vajra/scripts/*.sh config/includes.chroot/opt/vajra/privacy/*.sh
-          tar xzf ../../kernel-artifact/vajra-kernel.tar.gz -C /tmp
-          mkdir -p config/includes.chroot/boot config/includes.chroot/lib/modules
-          cp /tmp/vajra-kernel-x86_64 config/includes.chroot/boot/vmlinuz 2>/dev/null || true
-          cp -r /tmp/modules/lib/modules/* config/includes.chroot/lib/modules/ 2>/dev/null || true
-          mkdir -p config/hooks/normal
-          cat > config/hooks/normal/01-vajra.hook.chroot << 'HOOK'
-          #!/bin/bash
-          set -e
-          echo "vajra" > /etc/hostname
-          useradd -m -s /bin/bash -G sudo,netdev,audio,video vajra 2>/dev/null || true
-          echo "vajra:vajra" | chpasswd
-          echo "vajra ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/vajra
-          mkdir -p /etc/gdm3
-          echo -e '[daemon]\nAutomaticLoginEnable=true\nAutomaticLogin=vajra\n[security]\nDisallowRoot=true' > /etc/gdm3/daemon.conf
-          cat > /usr/bin/buddhi << 'CMD'
-          #!/bin/bash
-          exec python3 /opt/vajra/ai/buddhi-ai.py "$@"
-          CMD
-          chmod +x /usr/bin/buddhi
-          cat > /etc/systemd/system/buddhi-ai.service << 'SVC'
-          [Unit]
-          Description=Vajra OS Buddhi AI
-          After=network-online.target
-          [Service]
-          Type=simple
-          User=vajra
-          ExecStart=/usr/bin/python3 /opt/vajra/ai/buddhi-ai.py --service
-          Restart=always
-          [Install]
-          WantedBy=multi-user.target
-          SVC
-          systemctl enable buddhi-ai tor firewalld 2>/dev/null || true
-          HOOK
-          chmod +x config/hooks/normal/01-vajra.hook.chroot
-          sudo lb build 2>&1 | tail -20
-          for f in *.hybrid.iso *.iso; do
-            if [ -f "$f" ]; then mv "$f" vajra-os-1.0-amd64.iso; break; fi
-          done
-          sha256sum vajra-os-1.0-amd64.iso > vajra-os-1.0-amd64.iso.sha256 2>/dev/null || true
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: vajra-os-iso
-          path: vajra-lb/vajra-os-1.0-amd64.iso*
-          retention-days: 90
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: vajra-lb/vajra-os-1.0-amd64.iso*
-          body: |
-            # वज्र OS — Vajra OS 1.0
-
-            Privacy-first, AI-powered operating system. Built with its own custom kernel and branding.
-
-            ## Download & Install
-            1. Download the ISO
-            2. Flash to USB (Rufus on Windows, dd on Linux/Mac)
-            3. Boot from USB
-            4. Click "Install Vajra OS"
-
-            ## Features
-            - Buddhi AI — Agentic assistant with voice control
-            - Tor transparent proxy — All traffic anonymized (optional)
-            - Privacy hardened — AppArmor, firewall, MAC randomization
-            - Voice commands — Say "Buddhi" then speak
-            - Local LLM — Ollama powered, fully offline
-            - Beginner & Pro modes
-            - Indian language support (12 languages)
-            - Vedic math, festival calendar, Ayurveda reminders
-            - Cybersecurity tools with ethical usage guides
-
-            धर्मो रक्षति रक्षितः
+          gh release upload v1.0.0 \
+            output/vajra-kernel.tar.gz output/vajra-kernel.tar.gz.sha256 \
+            --clobber --repo "$GITHUB_REPOSITORY"
+          echo "[+] vajra-kernel.tar.gz published to the v1.0.0 release"

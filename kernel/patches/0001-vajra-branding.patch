@@ -1,20 +1,25 @@
 # Vajra OS Kernel Branding Patch
-# Changes the kernel version string to show "Vajra OS"
-# Applied to: init/version.c
+# Adds "Vajra OS 1.0" to the kernel banner and exports vajra_os_version.
+# Applied on top of torvalds/linux v6.10.
 
 diff --git a/init/version.c b/init/version.c
-index 2ee22354069a..1a2b3c4d5e6f 100644
+index 94c96f6fbfe6a277b79c02070620949b5bfa566b..03cde4a4cdaa5d897c2bf1948f94618e1c111fab 100644
 --- a/init/version.c
 +++ b/init/version.c
-@@ -45,6 +45,11 @@
+@@ -34,6 +34,7 @@
  
  const char linux_proc_banner[] =
  	"%s version %s"
 +	" (Vajra OS 1.0)"
- 	" (gcc version %d.%d.%d) %s"
- 	" #1 SMP " UTS_VERSION "\n";
+ 	" (" LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ")"
+ 	" (" LINUX_COMPILER ") %s\n";
  
-+/* Vajra OS branding — वज्र */
+@@ -52,3 +53,9 @@
+ #include "version-timestamp.c"
+ 
+ EXPORT_SYMBOL_GPL(init_uts_ns);
++
++/* Vajra OS branding - vajra */
 +const char vajra_os_version[] = "Vajra OS 1.0";
 +const char vajra_os_codename[] = "Vajra";
 +EXPORT_SYMBOL_GPL(vajra_os_version);
