@@ -785,13 +785,28 @@ DISPLAY /boot.msg
     iso.close()
 
     # 7b. isohybrid: make the ISO dd-able straight onto a USB stick
+    #     --uefi also adds an EFI System Partition entry covering efiboot.img,
+    #     so the dd'd stick boots on UEFI machines as well as BIOS ones.
     print("\n[7b/7] Applying isohybrid (dd-to-USB support)...")
     isohybrid_cmd = get_isohybrid(WORK)
-    r = subprocess.run([isohybrid_cmd, str(Path(output_path))], capture_output=True, text=True)
-    if r.returncode == 0:
-        print("  [+] isohybrid applied - the ISO can be dd'd to USB")
+    iso_file = str(Path(output_path))
+    if efiboot and efiboot.exists():
+        r = subprocess.run([isohybrid_cmd, "--uefi", iso_file], capture_output=True, text=True)
+        if r.returncode == 0:
+            print("  [+] isohybrid applied with UEFI support - dd to USB boots BIOS AND UEFI")
+        else:
+            print(f"  [!] isohybrid --uefi failed ({r.stderr.strip()[:200]}), retrying BIOS-only")
+            r = subprocess.run([isohybrid_cmd, iso_file], capture_output=True, text=True)
+            if r.returncode == 0:
+                print("  [+] isohybrid applied (BIOS only - UEFI USB needs syslinux >= 6.03 --uefi)")
+            else:
+                print(f"  [-] isohybrid FAILED: {r.stderr.strip()[:300]}")
     else:
-        print(f"  [-] isohybrid FAILED: {r.stderr.strip()[:300]}")
+        r = subprocess.run([isohybrid_cmd, iso_file], capture_output=True, text=True)
+        if r.returncode == 0:
+            print("  [+] isohybrid applied - the ISO can be dd'd to USB (BIOS)")
+        else:
+            print(f"  [-] isohybrid FAILED: {r.stderr.strip()[:300]}")
 
     iso_size = Path(output_path).stat().st_size
 
