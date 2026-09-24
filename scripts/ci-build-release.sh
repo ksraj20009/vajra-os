@@ -19,6 +19,7 @@ echo "============================================"
 sudo apt-get update -qq
 sudo apt-get install -y -qq dpkg-dev debhelper devscripts gnupg apt-utils binutils qemu-system-x86 \
   isolinux syslinux-common syslinux-utils grub-efi-amd64-bin grub-common ovmf dosfstools mtools \
+  build-essential libncurses-dev bison flex libssl-dev libelf-dev bc kmod \
   || fail "could not install build dependencies"
 
 # --- 2. APT signing key: persistent (VAJRA_APT_GPG_KEY secret) or ephemeral --
