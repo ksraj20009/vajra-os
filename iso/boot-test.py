@@ -35,8 +35,8 @@ BANNER_MARKERS = ["VAJRA OS 1.0", "Dharmo Rakshati Rakshitah"]
 def fail(msg, serial_log=None):
     print(f"  [-] BOOT TEST FAILED: {msg}")
     if serial_log and Path(serial_log).exists():
-        print("  --- serial console (last 40 lines) ---")
-        tail = Path(serial_log).read_text(errors="replace").splitlines()[-40:]
+        print("  --- serial console (last 200 lines) ---")
+        tail = Path(serial_log).read_text(errors="replace").splitlines()[-200:]
         for line in tail:
             print(f"  | {line}")
     sys.exit(1)
