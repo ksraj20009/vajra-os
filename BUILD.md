@@ -27,7 +27,8 @@ python3 iso/boot-test.py --iso vajra-os-1.0-amd64.iso
 The release ISO boots Vajra OS's **own kernel** — Linux 6.10 built from
 torvalds/linux with the Vajra branding patch and the hardened
 `kernel/configs/vajra.config` (all live-system drivers compiled in, so the
-ISO needs no module set). `uname -r` reports `6.10.0-vajra`.
+ISO needs no module set). `uname -r` reports `6.10.0-vajra+` (the trailing
+`+` is Kbuild's marker for a locally-built tree).
 
 ```bash
 # Build it yourself (~15 min on a fast machine)
