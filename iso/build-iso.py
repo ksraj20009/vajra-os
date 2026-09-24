@@ -645,9 +645,17 @@ for mod in ext4 vfat e1000 virtio_pci virtio_blk; do
     modprobe $mod 2>/dev/null
 done
 
-# Setup network
-ifconfig lo 127.0.0.1 up
-udhcpc -i eth0 2>/dev/null || echo "  [!] No network (use 'udhcpc -i eth0')"
+# Setup network - in the background: a missing DHCP server must never
+# stall the boot (udhcpc without -n blocks forever and used to hang init
+# before the shell prompt appeared)
+(
+  ifconfig lo 127.0.0.1 up
+  if udhcpc -i eth0 -n -q -t 5 -T 3 2>/dev/null; then
+    echo "  [+] network configured (udhcpc)"
+  else
+    echo "  [!] No network yet (try: udhcpc -i eth0)"
+  fi
+) &
 
 # Set hostname
 hostname vajra-os
