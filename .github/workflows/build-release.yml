@@ -27,4 +27,5 @@ jobs:
       - name: Run full release build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VAJRA_APT_GPG_KEY: ${{ secrets.VAJRA_APT_GPG_KEY }}
         run: bash scripts/ci-build-release.sh

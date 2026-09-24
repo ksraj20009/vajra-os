@@ -21,10 +21,18 @@ sudo apt-get install -y -qq dpkg-dev debhelper devscripts gnupg apt-utils binuti
   isolinux syslinux-common syslinux-utils grub-efi-amd64-bin grub-common ovmf dosfstools mtools \
   || fail "could not install build dependencies"
 
-# --- 2. Generate the APT signing key ---------------------------------------
+# --- 2. APT signing key: persistent (VAJRA_APT_GPG_KEY secret) or ephemeral --
 export GNUPGHOME="$(mktemp -d)"
 echo "$GNUPGHOME" > /tmp/gnupghome
-cat > /tmp/keyspec <<'EOF'
+if [ -n "${VAJRA_APT_GPG_KEY:-}" ]; then
+  printenv VAJRA_APT_GPG_KEY | gpg --batch --import \
+    || fail "could not import the persistent APT signing key"
+  echo "[+] Using persistent APT signing key (fingerprint stays stable)"
+else
+  echo "[!] VAJRA_APT_GPG_KEY secret not set - generating an EPHEMERAL key."
+  echo "    (Users must re-import the keyring after every publish. Set the"
+  echo "     repo secret to keep one stable key across releases.)"
+  cat > /tmp/keyspec <<'EOF'
 %no-protection
 Key-Type: RSA
 Key-Length: 3072
@@ -33,7 +41,8 @@ Name-Email: packages@vajra-os.org
 Expire-Date: 0
 %commit
 EOF
-gpg --batch --gen-key /tmp/keyspec || fail "key generation failed"
+  gpg --batch --gen-key /tmp/keyspec || fail "key generation failed"
+fi
 gpg --batch --yes --armor --export packages@vajra-os.org > packaging/keys/vajra-archive-keyring.asc
 gpg --list-keys --fingerprint || true
 

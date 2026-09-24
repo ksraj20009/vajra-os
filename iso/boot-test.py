@@ -10,6 +10,9 @@ Test 2 (real BIOS) : boot the actual ISO as a CD-ROM — SeaBIOS -> El Torito ->
 Test 3 (UEFI)      : boot the ISO via OVMF firmware -> El Torito 0xEF ->
                      BOOTX64.EFI -> kernel (skipped with a notice if OVMF is
                      not installed).
+Test 4 (UEFI USB)  : dd the ISO onto a raw disk image (exactly what a user
+                     does to a USB stick) and boot it under OVMF -> GPT/MBR
+                     ESP partition -> GRUB -> kernel.
 
 Usage:
     python3 boot-test.py [--iso vajra-os-1.0-amd64.iso]
@@ -145,6 +148,35 @@ def test_uefi_chain(iso_path, work):
         fail("UEFI boot chain did not reach the Vajra OS init", serial_log)
     print("  [+] PASS")
 
+def test_uefi_usb(iso_path, work):
+    print("\n[Test 4] UEFI USB boot — dd the ISO to a raw disk and boot it under OVMF")
+    firmware = find_ovmf()
+    if not firmware:
+        print("  [!] OVMF firmware not found — UEFI USB test SKIPPED")
+        return
+    img = work / "usb.img"
+    shutil.copy(iso_path, img)  # equivalent of: dd if=iso of=/dev/sdX
+    print(f"  [+] disk image: {img.stat().st_size:,} bytes (ISO dd'd verbatim)")
+    serial_log = work / "usb-serial.log"
+    cmd = [qemu(), "-m", "1024", "-accel", "tcg",
+           "-bios", firmware,
+           "-drive", f"file={img},format=raw",
+           "-display", "none", "-monitor", "none",
+           "-serial", f"file:{serial_log}",
+           "-netdev", "user,id=n0", "-device", "e1000,netdev=n0",
+           "-no-reboot"]
+    try:
+        subprocess.run(cmd, timeout=UEFI_TIMEOUT,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    except subprocess.TimeoutExpired:
+        pass  # expected — the OS drops to an interactive shell
+    if not serial_log.exists():
+        fail("no serial output captured")
+    output = serial_log.read_text(errors="replace")
+    if not check_markers(output):
+        fail("UEFI USB boot did not reach the Vajra OS init", serial_log)
+    print("  [+] PASS")
+
 def boot_test(iso_path):
     print(f"\n{'='*60}")
     print("  Vajra OS ISO Boot Test")
@@ -159,9 +191,10 @@ def boot_test(iso_path):
     test_smoke(iso_path, work)
     test_bios_chain(iso_path, work)
     test_uefi_chain(iso_path, work)
+    test_uefi_usb(iso_path, work)
 
     print(f"\n{'='*60}")
-    print("  ALL BOOT TESTS PASSED — the ISO boots (kernel, BIOS chain, UEFI chain)")
+    print("  ALL BOOT TESTS PASSED — kernel, BIOS CD chain, UEFI CD chain, UEFI USB")
     print(f"{'='*60}")
     shutil.rmtree(work, ignore_errors=True)
     return True
