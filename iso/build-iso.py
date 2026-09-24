@@ -5,12 +5,18 @@ Builds a real El Torito bootable ISO with both BIOS and UEFI support.
 
 Usage:
     python3 build-iso.py [--output vajra-os-1.0-amd64.iso]
+                         [--kernel PATH] [--modules DIR]
+
+    --kernel   use the custom Vajra kernel (bzImage built by
+               scripts/build-kernel.sh) instead of the Alpine fallback
+    --modules  kernel modules dir (containing <version>/ trees) to embed;
+               omitted with the custom kernel (all drivers are builtin)
 
 Requirements:
     pip install pycdlib
 
 What it does:
-    1. Downloads Alpine Linux kernel 6.6.142 + 922 kernel modules
+    1. Kernel: custom Vajra kernel (--kernel) or Alpine 6.6.142 fallback
     2. Downloads BusyBox (396 Unix commands)
     3. Downloads ISOLINUX bootloader (BIOS boot chain)
     4. Downloads GRUB EFI binary for UEFI boot (standalone if grub-mkstandalone is available)
@@ -20,13 +26,14 @@ What it does:
     8. Creates bootable ISO with:
        - El Torito BIOS boot via ISOLINUX (boot-info-table)
        - UEFI boot via EFI System Partition (/EFI/BOOT/BOOTX64.EFI)
-       - isohybrid MBR so the ISO can be dd'd straight to USB
+       - isohybrid MBR (--uefi: GPT + ESP) so the ISO can be dd'd straight
+         to USB and boots on BIOS AND UEFI machines
        - 3 boot options: default, debug, serial console
 
 The ISO is verified by iso/boot-test.py in CI before anything is published.
 """
 
-import os, sys, gzip, shutil, subprocess, urllib.request, json
+import os, sys, gzip, shutil, subprocess, urllib.request, json, tarfile
 from pathlib import Path
 import pycdlib
 
@@ -372,7 +379,7 @@ echo ""
 echo "  Run any tool by name - it is on the PATH."
 """
 
-def build_iso(output_path="vajra-os-1.0-amd64.iso"):
+def build_iso(output_path="vajra-os-1.0-amd64.iso", kernel_path=None, modules_path=None):
     global WORK
     WORK = Path("/scratch/work/vajra-iso-build")
     WORK.mkdir(parents=True, exist_ok=True)
@@ -381,33 +388,47 @@ def build_iso(output_path="vajra-os-1.0-amd64.iso"):
     print(f"  Vajra OS ISO Builder v4 - BIOS + UEFI + USB hybrid")
     print(f"{'='*60}\n")
 
-    # 1. Download kernel
-    print("[1/7] Downloading Linux kernel...")
-    kernel_apk = WORK / "linux-virt.apk"
-    if not kernel_apk.exists():
-        download(KERNEL_APK_URL, kernel_apk, "Alpine Linux kernel")
+    # 1. Kernel: the custom Vajra kernel (--kernel), or Alpine fallback
+    if kernel_path and Path(kernel_path).exists():
+        print("[1/7] Using the custom Vajra kernel...")
+        vmlinuz = Path(kernel_path)
+        modules_dir = None
+        if modules_path and Path(modules_path).exists():
+            modules_dir = Path(modules_path)  # dir containing <version>/ trees
+        print(f"  [+] vmlinuz (custom Vajra kernel): {vmlinuz.stat().st_size:,} bytes")
+        if modules_dir:
+            module_count = sum(1 for _ in modules_dir.rglob("*.ko*"))
+            print(f"  [+] Kernel modules: {module_count}")
+        else:
+            print("  [+] Live-system drivers are builtin to the kernel (no modules needed)")
+    else:
+        if kernel_path:
+            print(f"  [!] --kernel {kernel_path} not found - falling back to the Alpine kernel")
+        print("[1/7] Downloading Linux kernel...")
+        kernel_apk = WORK / "linux-virt.apk"
+        if not kernel_apk.exists():
+            download(KERNEL_APK_URL, kernel_apk, "Alpine Linux kernel")
 
-    # Extract kernel + modules from APK
-    import tarfile
-    with tarfile.open(str(kernel_apk), 'r') as tar:
-        members = tar.getmembers()
-        for m in members:
-            if m.name == "boot/vmlinuz-virt" or m.name == "./boot/vmlinuz-virt":
-                tar.extract(m, str(WORK))
-                print(f"  [+] vmlinuz-virt: {m.size:,} bytes")
-            if m.name.startswith("lib/modules/") or m.name.startswith("./lib/modules/"):
-                tar.extract(m, str(WORK))
+        # Extract kernel + modules from APK
+        with tarfile.open(str(kernel_apk), 'r') as tar:
+            members = tar.getmembers()
+            for m in members:
+                if m.name == "boot/vmlinuz-virt" or m.name == "./boot/vmlinuz-virt":
+                    tar.extract(m, str(WORK))
+                    print(f"  [+] vmlinuz-virt: {m.size:,} bytes")
+                if m.name.startswith("lib/modules/") or m.name.startswith("./lib/modules/"):
+                    tar.extract(m, str(WORK))
 
-    vmlinuz = WORK / "boot/vmlinuz-virt"
-    if not vmlinuz.exists():
-        print("  [-] ERROR: Could not extract kernel!")
-        sys.exit(1)
+        vmlinuz = WORK / "boot/vmlinuz-virt"
+        if not vmlinuz.exists():
+            print("  [-] ERROR: Could not extract kernel!")
+            sys.exit(1)
 
-    # Count modules
-    modules_dir = WORK / "lib/modules"
-    if modules_dir.exists():
-        module_count = sum(1 for _ in modules_dir.rglob("*.ko*"))
-        print(f"  [+] Kernel modules: {module_count}")
+        # Count modules
+        modules_dir = WORK / "lib/modules"
+        if modules_dir.exists():
+            module_count = sum(1 for _ in modules_dir.rglob("*.ko*"))
+            print(f"  [+] Kernel modules: {module_count}")
 
     # 2. Download BusyBox
     print("\n[2/7] Downloading BusyBox...")
@@ -588,8 +609,8 @@ menuentry "Vajra OS 1.0 (Serial Console)" {
         os.chmod(p, 0o755)
     print("  [+] Installed vajra-install + vajra-tools")
 
-    # Copy kernel modules
-    if modules_dir.exists():
+    # Copy kernel modules (custom kernel has everything builtin -> nothing to copy)
+    if modules_dir and modules_dir.exists():
         shutil.copytree(modules_dir, initramfs_dir / "lib/modules", dirs_exist_ok=True)
 
     # Create init script
@@ -821,5 +842,8 @@ DISPLAY /boot.msg
     return output_path
 
 if __name__ == "__main__":
-    output = sys.argv[sys.argv.index("--output") + 1] if "--output" in sys.argv else "vajra-os-1.0-amd64.iso"
-    build_iso(output)
+    argv = sys.argv
+    output = argv[argv.index("--output") + 1] if "--output" in argv else "vajra-os-1.0-amd64.iso"
+    kernel = argv[argv.index("--kernel") + 1] if "--kernel" in argv else None
+    modules = argv[argv.index("--modules") + 1] if "--modules" in argv else None
+    build_iso(output, kernel_path=kernel, modules_path=modules)
