@@ -4,37 +4,37 @@ Hash: SHA512
 Architectures: all
 Codename: vajra
 Components: main
-Date: Thu, 24 Sep 2026 03:03:33 +0000
+Date: Thu, 24 Sep 2026 10:37:48 +0000
 Description: Vajra OS APT Repository
 Origin: Vajra OS
 Suite: vajra
 MD5Sum:
- fc013ff0acfd23945d5796d2e3988109              157 Release
+ 55582dc423276bc3517e69c583812f7b              157 Release
  b02a1adf7b841f27c7f9633e3cfc63fd            13148 main/binary-all/Packages
- 6e43854304d535a4b7d83caf53f12f26             5530 main/binary-all/Packages.gz
+ 485ebb01f912254203480cfdfef8fb3b             5530 main/binary-all/Packages.gz
 SHA1:
- 79424d95c89011d90b0e9fa118a49a6b16cf6b44              157 Release
+ 89b92af8ea7d1124c9bee847aa4a3c97574d4bef              157 Release
  49460edd1be25ea28495d849abfb6cc867b4b2af            13148 main/binary-all/Packages
- 8291b3b56eec13c522198f1de9c8d8eaa37e9a83             5530 main/binary-all/Packages.gz
+ ba5cf104c2e281209cc9c55e87bc4d16975a524c             5530 main/binary-all/Packages.gz
 SHA256:
- a4a4e30160c75f4ec79cf5aab506f0849faa4e259001ebe9f85483e7b67f7c48              157 Release
+ c19acb969a89988295601d61ad84cbcc34053a085439b0750661853d6950a261              157 Release
  1bfec91c33eec1b84ede56337be767153bfa2bab6a59eb9708794fac765fc486            13148 main/binary-all/Packages
- f80e929dca2665838ff69f7c926d26d2ff71aae0983c512a08bfa37a08117288             5530 main/binary-all/Packages.gz
+ 22c0935d50bc1ffbeca7341e82ec64356375eab29a019983ce7f861c5b6e977a             5530 main/binary-all/Packages.gz
 SHA512:
- 60795713392c3d7f94309b1127c3c1f642fac63220630a1b5fffd035bc69f2584e5100ed380e9a629ccb8beeff11ec3bd6169dcd1fad8744862e7550fd81ed16              157 Release
+ d1126760da4215d4b4fa6c764ad1475a2693f28bb80e43241d2a4870dd3761b71ffbc02cd6721675d0b12dd55c8ea0c47f6540bb48fe1334dcddf24bb7fcff47              157 Release
  ecb98efa8b0daa03f971e3ce9cc645465984f148f9ec2f06c4d4ac615284ef27f48ae4f5c35620b171cfec7daafce414fd3dd64615f5b1ed7ab895ebf027f6aa            13148 main/binary-all/Packages
- d5b94c1ad39ab6b9400fd685dc53e5911ea0c45ab75734a6df77dad89fe2e72512c2cfc76591d06d0fddcc926b10921516a846e2a94b13db1b00472df6997c63             5530 main/binary-all/Packages.gz
+ ac38edb8cc3207eb12adff110508bb4f747dd21563b20a3ddff71126e0fe26d34727fedc938c9dced7e76051060b9f9d274dbed651d90b3e01fed4afe694e8ab             5530 main/binary-all/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQHKBAEBCgA0FiEEVgdWBz7MZK1FwZnAMhLZfd4MykoFAmq0kwUWHHBhY2thZ2Vz
-QHZhanJhLW9zLm9yZwAKCRAyEtl93gzKSkYxC/9LOTo6XlasaNGk2LhfVqnwb0bD
-AzwqY4UH3cLQ6xHl3zsKJsNMg4AT9XiUHY47u9F3ID/O071AHEtv24ylTticW0/V
-vrl9Aaw+VxcITilXUGVg09vxKjol6rMZi7wQeEsrFAENDDnYrA/Tg1Fwn8sUyXzS
-uZKhLM6Djjl0HaTEtp5yUnjLfbBO4sFzFAVZbpMtvduPQEdZHJsPBIK/uK9X39qq
-3B2zK3dpEh49SeZ/IfNn8nVrRrOcDlpkc3w1C1vSQrOjIy7hPfkjH/ULZ1t8axLk
-ypJtle0C1VCnctYv22O+MjZ0yu4SaS7rcSe4YkF3EX6IAFZd+Fy5QyCTxgrXMXqF
-MS7u0imNbADSpGPn9MUqLJDFWgkeIag8hyMWC5AkGof0IrcUDp0kk43trNk97qbq
-BubZjFhLCZisfZexzPSH7QBDZSR9udmeoa3SJyb5aNafUbgYyt+IcLvZpYTWC/CY
-ag0DBQzJF9b3HLU2bbXWi/VHUo+UiRYqHHFIbuU=
-=Mfi2
+iQHKBAEBCgA0FiEEVgdWBz7MZK1FwZnAMhLZfd4MykoFAmq0/XwWHHBhY2thZ2Vz
+QHZhanJhLW9zLm9yZwAKCRAyEtl93gzKSvdjC/9sXHjGdAMiYlyEXGVNiRrxGAmM
+FihtbZc5zZ9jPpNbby0JV/BVVfqgM9OT0Mz4O5izDxk8Oacvhr15OW6Tr9N+Wbi6
+jwS6UIuk8bfZWliomZ+zZSEHaTPRmiFBoi9Pezjl0rH/Q6fLFwNoFX55py6RmDVM
+JRLC3UK7tRSKd8iUQ4aIb3tXSowptK1vk/hw0NipkjaNnNxhFhApCUYtRidq3p5D
+berQfm+UGyZPJJFLBlfmCMVkqbC5bQYCXysQHvrYyxtu+3U1VdIG7k02GZNPteLS
+b+6aL3s0/yjAWGRJN9P+oGs1+00stSWh0mpyzEsKJOvAYY3Tq0m/x8tIuHVGZ5+U
+taodsY+o2Kv2+kDCWmc1wmELTVx+cryAG7FlxvOUT1xhBM/WQC0G6drge7BSkIgK
+s0E2MrJbKh3nP32H2PWh7P6yZR9nCUYTKjJNn/EtJoPZxSFTT+xj791sKDtrDtVA
+LamHoea/9B9NHK6GKwQpaLrSeA91b7Kqq46vXsQ=
+=RoyX
 -----END PGP SIGNATURE-----
