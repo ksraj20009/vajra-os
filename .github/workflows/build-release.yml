@@ -11,6 +11,8 @@ on:
       - 'packaging/**'
       - 'iso/**'
       - 'scripts/ci-build-release.sh'
+      - 'scripts/build-kernel.sh'
+      - 'kernel/**'
       - '.github/workflows/build-release.yml'
 
 permissions:
@@ -19,7 +21,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 45
+    timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@v4

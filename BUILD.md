@@ -5,7 +5,8 @@ Complete instructions for building Vajra OS from source.
 ## Quick Start (Pre-built ISO)
 
 Download the pre-built ISO from the releases page. The ISO is isohybrid —
-dd it straight to a USB stick and boot it:
+dd it straight to a USB stick and boot it (works on BIOS **and** UEFI
+machines):
 
 ```bash
 dd if=vajra-os-1.0-amd64.iso of=/dev/sdX bs=4M status=progress
@@ -16,14 +17,29 @@ Or install it to disk from the running live system with `vajra-install`.
 
 Test in QEMU:
 ```bash
-sudo apt install qemu-system-x86
-# Automated headless boot test (serial console, no display needed)
+sudo apt install qemu-system-x86 ovmf
+# Automated headless boot test (4 tests: kernel smoke, BIOS CD, UEFI CD, UEFI USB)
 python3 iso/boot-test.py --iso vajra-os-1.0-amd64.iso
-
-# Or interactive test with a window
-sudo apt install ovmf
-./iso/test-vajra-iso.sh vajra-os-1.0-amd64.iso
 ```
+
+## The Custom Kernel
+
+The release ISO boots Vajra OS's **own kernel** — Linux 6.10 built from
+torvalds/linux with the Vajra branding patch and the hardened
+`kernel/configs/vajra.config` (all live-system drivers compiled in, so the
+ISO needs no module set). `uname -r` reports `6.10.0-vajra`.
+
+```bash
+# Build it yourself (~15 min on a fast machine)
+scripts/build-kernel.sh kernel-output
+#    kernel-output/vajra-kernel-x86_64   - the bzImage
+#    kernel-output/modules/               - full module set
+```
+
+CI runs the same script twice: once standalone (`.github/workflows/build.yml`
+publishes `vajra-kernel.tar.gz` to the release after QEMU boot-testing the
+kernel), and once inside the release build so the ISO itself is built with
+the custom kernel.
 
 ## Building the ISO Yourself
 
@@ -37,31 +53,35 @@ pip3 install pycdlib
 ### Build the ISO
 
 ```bash
-# Clone the repo
 git clone https://github.com/ksraj20009/vajra-os.git
 cd vajra-os
 
-# Build the ISO (downloads kernel + BusyBox, builds initramfs, creates bootable ISO)
+# With the custom kernel (what CI ships):
+scripts/build-kernel.sh kernel-output
+python3 iso/build-iso.py --output vajra-os-1.0-amd64.iso \
+  --kernel kernel-output/vajra-kernel-x86_64
+
+# Or the quick local variant (downloads the Alpine 6.6 kernel instead,
+# everything else identical):
 python3 iso/build-iso.py
 
-# Verify it boots (QEMU: kernel smoke test + full BIOS chain + UEFI, ~10 minutes)
+# Verify it boots (QEMU: kernel smoke + full BIOS chain + UEFI + UEFI USB, ~15 min)
 python3 iso/boot-test.py
 ```
 
 ### What the build does
 
-1. Downloads Alpine Linux kernel 6.6.142 (with 922 kernel modules)
+1. Kernel: custom 6.10.0-vajra (built by `scripts/build-kernel.sh`) or the
+   Alpine 6.6.142 fallback
 2. Downloads BusyBox (396 Unix commands)
 3. Downloads all 280 Vajra utility scripts + 14 core tools from the repo
 4. Downloads Buddhi AI assistant
-5. Builds initramfs (cpio.gz, 28.8 MB) with all tools embedded
-6. Downloads ISOLINUX (BIOS bootloader) + GRUB EFI binary (UEFI boot)
-7. Applies an isohybrid MBR so the ISO can be dd'd straight to USB
-8. Creates ISO with:
-   - El Torito BIOS boot via ISOLINUX (boot-info-table patched)
-   - UEFI boot via /EFI/BOOT/BOOTX64.EFI (standalone GRUB in CI)
-   - isohybrid MBR — dd to USB and it boots
-   - 3 boot options: default, debug, serial console
+5. Builds initramfs (cpio.gz) with all tools + vajra-install embedded
+6. Gets ISOLINUX (BIOS boot chain) + builds GRUB EFI (UEFI, standalone)
+7. Applies isohybrid **with UEFI support** — dd to USB and it boots on
+   BIOS and UEFI machines alike
+8. Creates ISO with El Torito BIOS entry, UEFI entry (FAT efiboot.img),
+   and 3 boot options: default, debug, serial console
 
 ## Building Debian Packages
 
@@ -95,7 +115,13 @@ docker run -it vajra-os:1.0
 
 ## APT Repository
 
-The APT repository is published to the `gh-pages` branch (`apt-repo/`). To use it:
+The APT repository is published to the `gh-pages` branch (`apt-repo/`), and
+signed with a **persistent key** stored as the `VAJRA_APT_GPG_KEY` repo
+secret — the fingerprint never changes between releases:
+
+```
+5607 5607 3ECC 64AD 45C1 99C0 3212 D97D DE0C CA4A
+```
 
 ```bash
 # Import GPG key (from gh-pages, where the packages live)
@@ -113,41 +139,52 @@ sudo apt install vajra-core vajra-security-center vajra-control-center
 
 | Component | Count | Size |
 |-----------|-------|------|
-| Linux Kernel | 6.6.142 | 10.4 MB |
-| Kernel modules | 922 | 17 MB |
+| Vajra kernel 6.10.0-vajra | 1 | ~15 MB |
+| Kernel modules | builtin | — |
 | BusyBox applets | 396 | 1.4 MB |
 | Vajra core tools | 14 | 200 KB |
 | Utility scripts | 280 | 2 MB |
 | Buddhi AI | 1 | 49 KB |
-| vajra-install | 1 | 7 KB |
+| vajra-install + vajra-tools | 2 | 9 KB |
 | ISOLINUX bootloader | 2 files | 155 KB |
-| GRUB EFI | 1 | 4.2 MB |
+| GRUB EFI (standalone) | 1 | ~5 MB |
 | GPG public key | 1 | 1 KB |
-| **Total ISO** | | **44 MB** |
 
 ## Boot Modes
 
-1. **BIOS (El Torito)** — Works on all x86 PCs, legacy boot
-2. **UEFI (GRUB)** — Works on modern PCs with UEFI firmware
-3. **Serial console** — For headless servers and VMs
+1. **BIOS CD (El Torito)** — SeaBIOS → ISOLINUX → kernel
+2. **UEFI CD** — OVMF → El Torito 0xEF → FAT efiboot.img → GRUB → kernel
+3. **BIOS USB** — dd the ISO to a stick; isohybrid MBR → kernel
+4. **UEFI USB** — same dd'd stick; GPT/MBR ESP → GRUB → kernel
+5. **Serial console** — for headless servers and VMs
+
+All four boot paths are verified in CI by actually booting them in QEMU
+(`iso/boot-test.py`), before anything is published.
 
 ## Architecture
 
 ```
-vajra-os-1.0-amd64.iso (44 MB)
-├── /vmlinuz              — Linux kernel 6.6.142
-├── /initramfs.cpio.gz    — Root filesystem (28.8 MB)
+vajra-os-1.0-amd64.iso
+├── /vmlinuz              — Vajra custom kernel 6.10.0-vajra
+├── /initramfs.cpio.gz    — Root filesystem
 │   ├── /bin/             — BusyBox (396 applets)
-│   ├── /usr/bin/         — core tools + vajra-install + Buddhi AI
+│   ├── /usr/bin/         — 14 core tools + vajra-install + vajra-tools + Buddhi AI
 │   ├── /usr/share/vajra/ — 280 utility scripts
-│   ├── /lib/modules/     — 922 kernel modules
 │   └── /etc/             — System config
 ├── /ISOLINUX/ISOLINUX.BIN — BIOS bootloader (El Torito boot image)
 ├── /ISOLINUX/LDLINUX.C32 — ISOLINUX module
 ├── /EFI/BOOT/BOOTX64.EFI — GRUB for UEFI boot
+├── /EFIBOOT.IMG          — FAT image wrapping GRUB (UEFI El Torito + USB ESP)
 ├── /boot.cat             — El Torito boot catalog
 ├── /README.txt           — Documentation
-└── [MBR]                 — isohybrid boot sector (USB bootable)
+└── [MBR/GPT]             — isohybrid --uefi boot sector (BIOS + UEFI USB)
 ```
+
+## CI Workflows
+
+| Workflow | What it does |
+|----------|--------------|
+| `build-release.yml` | Full release: 10 .deb packages, custom kernel, ISO (all 4 boot tests), rootfs, APT repo publish |
+| `build.yml` | Standalone custom-kernel build + QEMU boot test → `vajra-kernel.tar.gz` |
 
 (c) 2026 Vajra OS Project

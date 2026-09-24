@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'kernel/**'
+      - 'scripts/build-kernel.sh'
 
 permissions:
   contents: write
@@ -24,57 +25,12 @@ jobs:
             libssl-dev libelf-dev bc cpio kmod git qemu-system-x86
           python3 -m pip install --user pycdlib
 
-      - name: Clone kernel source
-        run: |
-          git clone --depth=1 --branch v6.10 https://github.com/torvalds/linux.git kernel/linux
+      - name: Build the custom kernel
+        run: bash scripts/build-kernel.sh vajra-kernel-out
 
-      - name: Apply Vajra OS patches
+      - name: Package kernel
         run: |
-          cd kernel/linux
-          for patch in ../patches/*.patch; do
-            if git apply "$patch"; then
-              echo "[+] applied: $(basename "$patch")"
-            else
-              echo "[!] skipped: $(basename "$patch")"
-            fi
-          done
-
-      - name: Apply Vajra OS kernel config
-        run: |
-          cd kernel/linux
-          make defconfig
-          while IFS= read -r line; do
-            [[ "$line" =~ ^# ]] && continue
-            [[ -z "$line" ]] && continue
-            key="${line%%=*}"
-            val="${line#*=}"
-            val="${val%\"}"; val="${val#\"}"
-            case "$val" in
-              y) scripts/config --enable "$key" ;;
-              n) scripts/config --disable "$key" ;;
-              m) scripts/config --module "$key" ;;
-              *) scripts/config --set-str "$key" "$val" ;;
-            esac
-          done < ../configs/vajra.config
-          make olddefconfig
-          echo "--- key config values ---"
-          grep -E "CONFIG_LOCALVERSION=|CONFIG_DEFAULT_HOSTNAME=|CONFIG_SECURITY_APPARMOR=" .config
-
-      - name: Build kernel
-        run: |
-          set -o pipefail
-          cd kernel/linux
-          make -j"$(nproc)" 2>&1 | tail -20
-          test -s arch/x86/boot/bzImage || { echo "[-] FATAL: bzImage was not built"; exit 1; }
-          echo "[+] bzImage: $(stat -c%s arch/x86/boot/bzImage) bytes"
-
-      - name: Build modules and package
-        run: |
-          set -o pipefail
-          cd kernel/linux
-          make modules_install INSTALL_MOD_PATH="$GITHUB_WORKSPACE/output/modules" 2>&1 | tail -5
-          cp arch/x86/boot/bzImage "$GITHUB_WORKSPACE/output/vajra-kernel-x86_64"
-          cd "$GITHUB_WORKSPACE/output"
+          cd vajra-kernel-out
           tar czf vajra-kernel.tar.gz vajra-kernel-x86_64 modules/
           sha256sum vajra-kernel.tar.gz > vajra-kernel.tar.gz.sha256
           ls -la
@@ -96,7 +52,7 @@ jobs:
 
           log = tempfile.mktemp(suffix=".log")
           cmd = ["qemu-system-x86_64", "-m", "512", "-accel", "tcg",
-                 "-kernel", "output/vajra-kernel-x86_64",
+                 "-kernel", "vajra-kernel-out/vajra-kernel-x86_64",
                  "-initrd", "initramfs.cpio.gz",
                  "-append", "console=ttyS0",
                  "-display", "none", "-monitor", "none",
@@ -120,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: vajra-kernel
-          path: output/vajra-kernel.tar.gz
+          path: vajra-kernel-out/vajra-kernel.tar.gz
           retention-days: 90
 
       - name: Upload kernel to release
@@ -128,6 +84,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload v1.0.0 \
-            output/vajra-kernel.tar.gz output/vajra-kernel.tar.gz.sha256 \
+            vajra-kernel-out/vajra-kernel.tar.gz vajra-kernel-out/vajra-kernel.tar.gz.sha256 \
             --clobber --repo "$GITHUB_REPOSITORY"
           echo "[+] vajra-kernel.tar.gz published to the v1.0.0 release"

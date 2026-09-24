@@ -4,6 +4,8 @@ Vajra OS ISO boot tests.
 
 Test 1 (smoke)     : extract kernel+initramfs from the ISO and boot them
                      directly under QEMU (fast, isolates kernel/initramfs/init).
+                     With --expect-custom-kernel, also asserts uname -r contains
+                     "-vajra" (i.e. the ISO really runs the custom kernel).
 Test 2 (real BIOS) : boot the actual ISO as a CD-ROM — SeaBIOS -> El Torito ->
                      ISOLINUX -> kernel -> initramfs -> init. This is the exact
                      chain a user gets on real hardware (minus the silicon).
@@ -55,7 +57,7 @@ def qemu():
         fail("qemu-system-x86_64 not found on PATH")
     return q
 
-def test_smoke(iso_path, work):
+def test_smoke(iso_path, work, expect_vajra=False):
     print("\n[Test 1] Direct kernel boot (smoke) — kernel + initramfs + init")
     iso = pycdlib.PyCdlib()
     iso.open(str(iso_path))
@@ -83,6 +85,10 @@ def test_smoke(iso_path, work):
     output = serial_log.read_text(errors="replace")
     if not check_markers(output, extra=["vajra@vajra-os"]):
         fail("boot banner markers missing from serial console", serial_log)
+    if expect_vajra:
+        if "-vajra" not in output:
+            fail("ISO is not running the custom Vajra kernel (uname -r lacks '-vajra')", serial_log)
+        print("  [+] custom Vajra kernel confirmed (uname -r contains -vajra)")
     print("  [+] PASS")
 
 def test_bios_chain(iso_path, work):
@@ -177,7 +183,7 @@ def test_uefi_usb(iso_path, work):
         fail("UEFI USB boot did not reach the Vajra OS init", serial_log)
     print("  [+] PASS")
 
-def boot_test(iso_path):
+def boot_test(iso_path, expect_vajra=False):
     print(f"\n{'='*60}")
     print("  Vajra OS ISO Boot Test")
     print(f"{'='*60}\n")
@@ -188,7 +194,7 @@ def boot_test(iso_path):
     qemu()  # early check
 
     work = Path(tempfile.mkdtemp(prefix="vajra-boot-"))
-    test_smoke(iso_path, work)
+    test_smoke(iso_path, work, expect_vajra=expect_vajra)
     test_bios_chain(iso_path, work)
     test_uefi_chain(iso_path, work)
     test_uefi_usb(iso_path, work)
@@ -201,4 +207,5 @@ def boot_test(iso_path):
 
 if __name__ == "__main__":
     iso = sys.argv[sys.argv.index("--iso") + 1] if "--iso" in sys.argv else "vajra-os-1.0-amd64.iso"
-    boot_test(iso)
+    expect_vajra = "--expect-custom-kernel" in sys.argv
+    boot_test(iso, expect_vajra=expect_vajra)

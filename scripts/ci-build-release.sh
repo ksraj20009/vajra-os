@@ -115,15 +115,21 @@ echo "[+] Packages tarball:"
 ls -la ../vajra-os-packages.tar.gz
 cd "$GITHUB_WORKSPACE" || fail "lost workspace"
 
-# --- 5. Build the ISO --------------------------------------------------------
+# --- 4b. Build the custom Vajra kernel (this is the kernel the ISO boots) ---
+bash scripts/build-kernel.sh vajra-kernel-out || fail "custom kernel build failed"
+
+# --- 5. Build the ISO (custom kernel inside) ---------------------------------
 python3 -m pip install --user pycdlib
 sudo mkdir -p /scratch/work
 sudo chown -R "$(id -u):$(id -g)" /scratch
-python3 iso/build-iso.py --output vajra-os-1.0-amd64.iso || fail "ISO build failed"
+python3 iso/build-iso.py --output vajra-os-1.0-amd64.iso \
+  --kernel vajra-kernel-out/vajra-kernel-x86_64 \
+  || fail "ISO build failed"
 ls -la vajra-os-1.0-amd64.iso
 
 # --- 5a. Boot-test the ISO (nothing unbootable gets published) ---------------
-python3 iso/boot-test.py --iso vajra-os-1.0-amd64.iso || fail "ISO boot test failed"
+python3 iso/boot-test.py --iso vajra-os-1.0-amd64.iso --expect-custom-kernel \
+  || fail "ISO boot test failed"
 
 # --- 5b. Build the Docker rootfs ---------------------------------------------
 python3 iso/build-rootfs.py --output vajra-os-rootfs.tar.gz || fail "rootfs build failed"

@@ -56,7 +56,7 @@ dd if=vajra-os-1.0-amd64.iso of=/dev/sdX bs=4M status=progress
 
 ```
 vajra-os/
-├── core/           → 16 core OS tools (process, memory, filesystem managers)
+├── core/           → 14 core OS tools (process, memory, filesystem managers)
 ├── ai/             → Buddhi AI assistant
 ├── packaging/      → Debian package builds + GPG signing key
 ├── iso/            → Bootable ISO builder scripts

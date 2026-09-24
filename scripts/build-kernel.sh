@@ -1,93 +1,86 @@
 #!/bin/bash
-# Vajra OS Kernel Builder
-# वज्र OS — Builds the Vajra OS custom kernel,
-# applies Vajra patches and config, then compiles.
-set -e
+# ============================================================================
+# Vajra OS custom kernel builder
+#   scripts/build-kernel.sh [output-dir]        (default: kernel-output)
+#
+# Shared by .github/workflows/build.yml and scripts/ci-build-release.sh so
+# the standalone kernel artifact and the kernel inside the ISO are always
+# built from the same source, patch and config.
+#
+# Builds torvalds/linux v6.10 with:
+#   - kernel/patches/*.patch    (Vajra branding, exports vajra_os_version)
+#   - kernel/configs/vajra.config (hardening + all live-ISO drivers builtin)
+#
+# Output:
+#   <output-dir>/vajra-kernel-x86_64       - the bzImage
+#   <output-dir>/modules/lib/modules/...   - full module set (for the tarball)
+#
+# The kernel release is 6.10.0-vajra (the patch is committed inside the
+# clone so setlocalversion does not append "-dirty").
+# ============================================================================
+set -euo pipefail
 
-KERNEL_VERSION="v6.10"
-KERNEL_REPO="https://github.com/torvalds/linux.git"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-BUILD_DIR="${PROJECT_DIR}/kernel/build"
-OUTPUT_DIR="${PROJECT_DIR}/output"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+OUT="${1:-$ROOT/kernel-output}"
+mkdir -p "$OUT"
+OUT="$(cd "$OUT" && pwd)"
 
-echo "◆ Vajra OS Kernel Builder"
-echo "=========================="
-echo " Kernel: ${KERNEL_VERSION}"
-echo " Repo: ${KERNEL_REPO}"
-echo ""
-
-echo "[1/7] Cloning kernel source..."
-if [ -d "${BUILD_DIR}/linux" ]; then
- cd "${BUILD_DIR}/linux"
- git fetch --depth=1 origin "${KERNEL_VERSION}"
- git checkout "${KERNEL_VERSION}"
-else
- mkdir -p "${BUILD_DIR}"
- cd "${BUILD_DIR}"
- git clone --depth=1 --branch "${KERNEL_VERSION}" "${KERNEL_REPO}" linux
- cd linux
+# --- 1. Source ---------------------------------------------------------------
+if [ ! -d "$ROOT/kernel/linux" ]; then
+  echo "[1/4] Cloning torvalds/linux v6.10 (depth 1)..."
+  git clone --depth=1 --branch v6.10 https://github.com/torvalds/linux.git \
+    "$ROOT/kernel/linux"
 fi
-echo " ✓ Kernel source ready"
+cd "$ROOT/kernel/linux"
 
-echo "[2/7] Applying Vajra OS patches..."
-PATCH_DIR="${PROJECT_DIR}/kernel/patches"
-if [ -d "${PATCH_DIR}" ]; then
- for patch in "${PATCH_DIR}"/*.patch; do
- if [ -f "$patch" ]; then
- echo " → Applying $(basename "$patch")..."
- git apply "$patch" 2>/dev/null || echo " ⚠ Patch already applied: $(basename "$patch")"
- fi
- done
-fi
-echo " ✓ Patches applied"
+# --- 2. Patches --------------------------------------------------------------
+echo "[2/4] Applying Vajra OS patches..."
+for patch in "$ROOT"/kernel/patches/*.patch; do
+  if git apply "$patch"; then
+    echo "  [+] applied: $(basename "$patch")"
+  else
+    echo "  [!] skipped: $(basename "$patch")"
+  fi
+done
+# commit so the kernel release is a clean "6.10.0-vajra" (no -dirty suffix)
+git add -A
+git -c user.email=ci@vajra-os.org -c user.name="Vajra CI" \
+  commit -qm "vajra: branding patch + config applied" || true
 
-echo "[3/7] Configuring kernel..."
-CONFIG_FILE="${PROJECT_DIR}/kernel/configs/vajra.config"
+# --- 3. Config ---------------------------------------------------------------
+echo "[3/4] Applying vajra.config on top of defconfig..."
 make defconfig
-if [ -f "${CONFIG_FILE}" ]; then
- while IFS= read -r line; do
- [[ "$line" =~ ^# ]] && continue
- [[ -z "$line" ]] && continue
- key=$(echo "$line" | cut -d= -f1)
- value=$(echo "$line" | cut -d= -f2)
- if [ "$value" = "y" ]; then
- scripts/config --enable "$key"
- elif [ "$value" = "n" ]; then
- scripts/config --disable "$key"
- else
- scripts/config --set-val "$key" "$value"
- fi
- done < "${CONFIG_FILE}"
-fi
-scripts/config --set-str LOCALVERSION "-vajra"
+while IFS= read -r line; do
+  [[ "$line" =~ ^# ]] && continue
+  [[ -z "$line" ]] && continue
+  key="${line%%=*}"
+  val="${line#*=}"
+  val="${val%\"}"; val="${val#\"}"
+  case "$val" in
+    y) scripts/config --enable "$key" ;;
+    n) scripts/config --disable "$key" ;;
+    m) scripts/config --module "$key" ;;
+    *) scripts/config --set-str "$key" "$val" ;;
+  esac
+done < "$ROOT/kernel/configs/vajra.config"
 make olddefconfig
-echo " ✓ Kernel configured"
+echo "--- key config values ---"
+grep -E "CONFIG_LOCALVERSION=|CONFIG_DEFAULT_HOSTNAME=" .config || true
 
-echo "[4/7] Building kernel..."
-make -j"$(nproc)" 2>&1 | tail -5
-echo " ✓ Kernel built"
+# --- 4. Build ----------------------------------------------------------------
+echo "[4/4] Building kernel (make -j$(nproc))..."
+set -o pipefail
+make -j"$(nproc)" 2>&1 | tail -30
+test -s arch/x86/boot/bzImage || { echo "[-] FATAL: bzImage was not built"; exit 1; }
+echo "[+] bzImage: $(stat -c%s arch/x86/boot/bzImage) bytes"
+echo "[+] kernel release: $(make kernelrelease)"
 
-echo "[5/7] Building modules..."
-make modules -j"$(nproc)" 2>&1 | tail -5
-echo " ✓ Modules built"
+make modules_install INSTALL_MOD_PATH="$OUT/modules" > /dev/null 2>&1
+cp arch/x86/boot/bzImage "$OUT/vajra-kernel-x86_64"
 
-echo "[6/7] Packaging..."
-mkdir -p "${OUTPUT_DIR}"
-cp arch/x86/boot/bzImage "${OUTPUT_DIR}/vajra-kernel-${KERNEL_VERSION}-x86_64"
-make modules_install INSTALL_MOD_PATH="${OUTPUT_DIR}/modules" 2>&1 | tail -3
-cd "${OUTPUT_DIR}"
-tar czf "vajra-kernel-${KERNEL_VERSION}-x86_64.tar.gz" \
- "vajra-kernel-${KERNEL_VERSION}-x86_64" "modules/"
-sha256sum "vajra-kernel-${KERNEL_VERSION}-x86_64.tar.gz" > "vajra-kernel-${KERNEL_VERSION}-x86_64.tar.gz.sha256"
-echo " ✓ Packaged"
-
-echo "[7/7] Build complete!"
 echo ""
-echo "◆ Vajra OS Kernel Build Summary"
-echo "================================"
-echo " Kernel: ${KERNEL_VERSION}-vajra"
-echo " Image: ${OUTPUT_DIR}/vajra-kernel-${KERNEL_VERSION}-x86_64"
-echo " Package: ${OUTPUT_DIR}/vajra-kernel-${KERNEL_VERSION}-x86_64.tar.gz"
-echo ""
-echo "◆ वज्र OS — धर्मो रक्षति रक्षितः"
+echo "============================================"
+echo "  Custom Vajra kernel built:"
+echo "    $OUT/vajra-kernel-x86_64"
+echo "    $OUT/modules/lib/modules/"
+echo "============================================"
