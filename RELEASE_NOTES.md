@@ -1,47 +1,71 @@
-Vajra OS 1.0 — Release Notes
-==============================
-Date: September 6, 2026
-
-This is the first release of Vajra OS — India's Privacy-First AI-Powered Operating System.
-
-Bootable ISO (37.5 MB, El Torito bootable)
-==========================================
-The ISO contains:
-  - Linux Kernel 6.6.142 with 922 kernel modules
-  - BusyBox with 396 Unix commands
-  - 14 Vajra OS management tools
-  - 279 utility scripts (GST, Panchang, Vedic math, Ayurveda, etc.)
-  - Buddhi AI assistant (बुद्धि)
-  - Disk installer (vajra-install)
-  - Network support (DHCP)
-  - Hardware detection
-  - El Torito boot record (BIOS bootable)
-
-Debian Packages (6, GPG-signed)
+Vajra OS 1.0.0 — Release Notes
 ===============================
-  vajra-core_1.0.0_all.deb              — 8 OS managers
-  vajra-security-center_1.0.0_all.deb   — Security center
-  vajra-control-center_1.0.0_all.deb    — 12-section settings
-  vajra-package-manager_1.0.0_all.deb   — App store
-  vajra-update-manager_1.0.0_all.deb    — Update manager
-  vajra-wallpapers_1.0.0_all.deb        — Default wallpaper
+Date: September 25, 2026 (updated from the initial 1.0.0 notes)
 
-GPG Key
-=======
-Key ID: 881FCB3110D97AFD
-Purpose: Package signing for Vajra OS APT repository
-Verify: gpg --import packaging/keys/vajra-archive-keyring.asc
-        gpg --verify package.deb.sig package.deb
+India's Privacy-First AI-Powered Operating System — a complete standalone
+OS: custom kernel, own APT repository, Docker image, 320+ tools.
 
-How to Boot
-===========
-1. Flash to USB:  dd if=vajra-os-1.0.iso of=/dev/sdX bs=4M status=progress
-2. Boot from USB
-3. Install to disk:  vajra-install
-4. Or explore live:  vajra-help, vajra-tools, buddhi
+Bootable ISO (32.5 MB) — boots four ways, all CI-verified
+=========================================================
+`vajra-os-1.0-amd64.iso` boots on BIOS and UEFI machines, from CD and from
+USB. Every path is verified in CI by actually booting it in QEMU before
+anything is published (iso/boot-test.py, 4 tests):
 
-Motto
-=====
-धर्मो रक्षति रक्षितः
-Dharmo Rakshati Rakshitah
-(Dharma protects those who protect it)
+  - BIOS CD    — El Torito → ISOLINUX → kernel
+  - UEFI CD    — El Torito 0xEF → FAT efiboot.img → GRUB → kernel
+  - BIOS USB   — isohybrid MBR (dd the ISO straight to a stick)
+  - UEFI USB   — same dd'd stick; GPT + ESP partition → GRUB → kernel
+
+Inside the ISO:
+
+  - Custom Vajra kernel 6.10.0-vajra+ — Linux 6.10 from torvalds/linux
+    with the Vajra branding patch (exports vajra_os_version) and the
+    hardened kernel/configs/vajra.config; every live-system driver
+    (virtio, e1000/e1000e, NVMe, AHCI, USB storage, ext4/vfat/iso9660,
+    serial console) is compiled in, so no module set is needed.
+  - BusyBox (396 Unix commands)
+  - 14 Vajra core tools (process/memory/filesystem/device/service/
+    security/control/package/update managers, display server, boot manager)
+  - 280 utility scripts (GST, Panchang, Vedic math, Ayurveda, IRCTC, ...)
+  - Buddhi AI assistant (बुद्धि) — fully local
+  - vajra-install disk installer + vajra-tools
+
+Custom Kernel
+=============
+`vajra-kernel.tar.gz` — the same kernel the ISO boots, standalone:
+bzImage + the full module set. Built by scripts/build-kernel.sh and
+QEMU boot-tested in CI (build.yml) before publishing.
+
+Debian Packages (10, GPG-signed)
+================================
+  vajra-core              — 8 core OS managers
+  vajra-security-center   — security center
+  vajra-control-center    — 12-section settings
+  vajra-package-manager   — app store
+  vajra-update-manager    — update manager
+  vajra-buddhi-ai         — AI assistant
+  vajra-keyring           — GPG signing key
+  vajra-desktop           — desktop meta-package
+  vajra-wallpapers        — official wallpapers
+  vajra-sources           — APT sources entry
+
+APT Repository (persistent signing key)
+=======================================
+Published to gh-pages (`apt-repo/`), signed with a key stored as the
+VAJRA_APT_GPG_KEY repo secret, so the fingerprint is stable across
+releases:
+
+  5607 5607 3ECC 64AD 45C1 99C0 3212 D97D DE0C CA4A
+
+Docker
+======
+`vajra-os-rootfs.tar.gz` — `docker import` it and run Vajra OS as a
+container.
+
+Builds
+======
+Everything above is built and verified by GitHub Actions:
+build-release.yml (full release, 4 boot tests) and build.yml
+(custom kernel + QEMU boot test). A red run blocks publishing.
+
+Dharmo Rakshati Rakshitah — धर्मो रक्षति रक्षितः

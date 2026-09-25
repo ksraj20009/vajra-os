@@ -1,0 +1,38 @@
+# ============================================================================
+# Vajra OS — AI Suite Default Configuration
+# वज्र OS — बुद्धि AI डिफ़ॉल्ट कॉन्फ़िगरेशन
+#
+# This is the shipped default configuration for the Vajra AI suite.
+# At runtime the settings live in /etc/vajra/ai-config.json (JSON) and are
+# managed by the AI Settings Panel (ai/ai-settings-panel.py); this file is
+# the human-readable source of those defaults — keys map 1:1.
+#
+# Apply the defaults:
+#   scripts/first-boot (system/vajra-first-boot.sh) seeds the runtime
+#   config on first boot of an installed system.
+# ============================================================================
+
+# --- Master switch ----------------------------------------------------------
+ai_enabled: true              # global AI on/off
+
+# --- Voice -------------------------------------------------------------------
+voice_enabled: true          # voice control daemon (ai/voice-control-daemon.py)
+voice_wake_word: "buddhi"     # say "Buddhi ..." to activate
+voice_language: "en-IN"       # en-IN, hi-IN, ta-IN, ... (10 Indian languages)
+
+# --- Proactive (agentic) behaviour ------------------------------------------
+proactive_enabled: true        # master switch for proactive features
+proactive_file_organizer: true # keep ~/Downloads tidy automatically
+proactive_log_analyzer: true   # watch logs and surface anomalies
+proactive_monitor: true         # system health monitoring + auto-fix
+
+# --- Assistive features -----------------------------------------------------
+code_review_enabled: true      # AI code reviewer (ai/ai-code-reviewer.py)
+security_alerts: true          # security guardian alerts
+learning_assistance: true      # study help (Vedic math, languages)
+auto_suggest: true             # command suggestions in the shell
+
+# --- Privacy / model --------------------------------------------------------
+privacy_mode: "local-only"     # local-only: nothing leaves the machine.
+                              # Buddhi runs fully offline (Ollama backend).
+model: "buddhi-local"         # the local model identifier
