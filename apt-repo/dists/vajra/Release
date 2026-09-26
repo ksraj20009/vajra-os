@@ -1,23 +1,23 @@
 Architectures: all
 Codename: vajra
 Components: main
-Date: Sat, 26 Sep 2026 14:26:53 +0000
+Date: Sat, 26 Sep 2026 17:00:38 +0000
 Description: Vajra OS APT Repository
 Origin: Vajra OS
 Suite: vajra
 MD5Sum:
- cc46ccb86f3dfaa7c7727e893ad818c6              157 Release
+ 2b8e0e6eeb023b2ab8d1774eee73d566              157 Release
  b02a1adf7b841f27c7f9633e3cfc63fd            13148 main/binary-all/Packages
- 021092c08b3ee82dc90be0485309a40e             5530 main/binary-all/Packages.gz
+ 4e159717474262a0dceb2cf5ee4b46a1             5530 main/binary-all/Packages.gz
 SHA1:
- 755b46cecbb10c980e9fae2b8764de50e371a621              157 Release
+ 83ec312b17317fd66171409794080d2a7d72c567              157 Release
  49460edd1be25ea28495d849abfb6cc867b4b2af            13148 main/binary-all/Packages
- 14d13b29ff8a039df447ba3c2fc385081a20ee5a             5530 main/binary-all/Packages.gz
+ b84032a895590611103193ad39db18180c7af50c             5530 main/binary-all/Packages.gz
 SHA256:
- 0772e6b2a0cfe9788c5edad5352be5cfd188791c23c1ed61e25c190fdfda2e63              157 Release
+ 0aa6cf8b4d47422f7ade558a166bd9e87ab3ab77f061d0dacf4710a9af72597d              157 Release
  1bfec91c33eec1b84ede56337be767153bfa2bab6a59eb9708794fac765fc486            13148 main/binary-all/Packages
- 5db6017e468ba6acef26591f22ab7847696e1bbd45643745d71b86c45a3a58ff             5530 main/binary-all/Packages.gz
+ 3c431b89d7699f8e24e7e93d66fcea70f11a8b19f4349b9101aa05346d50019e             5530 main/binary-all/Packages.gz
 SHA512:
- ff67c82c6990b67502dbaa6178f8bfb0f9585d0be35097dc208d5c8d4377efae4aa7c5c18ab5ef600240b48267013d68a2d4c7db8079e21f9e0ac74f6a267245              157 Release
+ 5112be826c77255ed5be20c3f3c5be86bbce1fadc5ac255392589c59b13d94f60fdbd0d18388975ef06f98d93ffa246d71ac8eed8ff8ec9025fb70086fb2d812              157 Release
  ecb98efa8b0daa03f971e3ce9cc645465984f148f9ec2f06c4d4ac615284ef27f48ae4f5c35620b171cfec7daafce414fd3dd64615f5b1ed7ab895ebf027f6aa            13148 main/binary-all/Packages
- 5f04bda5e5338cca824c6573f24390fdb8eb5eecc3384c8e47f81e7e028b282b4643226fb21826fb50af1721cf04f5b748b00b9a7a975ad251e8e7f501580777             5530 main/binary-all/Packages.gz
+ eae12a2adeafbc5f956d2dbc534e82f73fd9f4818a43a3eb895e7e32bf9425a9da59746f6e763bcfe2a4d66a0cef49d92fb2f0c80e25ef993c721b302b57289a             5530 main/binary-all/Packages.gz
