@@ -136,12 +136,17 @@ python3 iso/boot-test.py --iso vajra-os-1.0-amd64.iso --expect-custom-kernel \
 python3 iso/build-rootfs.py --output vajra-os-rootfs.tar.gz || fail "rootfs build failed"
 ls -la vajra-os-rootfs.tar.gz
 
-# --- 6. Upload artifacts to the release -------------------------------------
+# --- 6. Upload artifacts to the release (with sha256 checksums) -------------
 if [ -n "${GH_TOKEN:-}" ]; then
+  for f in vajra-os-1.0-amd64.iso vajra-os-packages.tar.gz vajra-os-rootfs.tar.gz; do
+    sha256sum "$f" > "$f.sha256"
+  done
   gh release upload "$RELEASE_TAG" \
-    vajra-os-1.0-amd64.iso vajra-os-packages.tar.gz vajra-os-rootfs.tar.gz --clobber \
+    vajra-os-1.0-amd64.iso vajra-os-1.0-amd64.iso.sha256 \
+    vajra-os-packages.tar.gz vajra-os-packages.tar.gz.sha256 \
+    vajra-os-rootfs.tar.gz vajra-os-rootfs.tar.gz.sha256 --clobber \
     || fail "release upload failed"
-  echo "[+] Release assets updated"
+  echo "[+] Release assets updated (with sha256 checksums)"
 else
   echo "[!] GH_TOKEN not set, skipping release upload"
 fi

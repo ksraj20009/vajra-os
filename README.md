@@ -13,6 +13,8 @@
   <a href="https://github.com/ksraj20009/vajra-os/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-138808" alt="License"></a>
   <a href="https://ksraj20009.github.io/vajra-os/"><img src="https://img.shields.io/badge/website-ksraj20009.github.io-blue" alt="Website"></a>
   <img src="https://img.shields.io/badge/made%20in-India-red" alt="Made in India">
+  <a href="https://github.com/ksraj20009/vajra-os/actions/workflows/build-release.yml"><img src="https://github.com/ksraj20009/vajra-os/actions/workflows/build-release.yml/badge.svg" alt="Build Release"></a>
+  <a href="https://github.com/ksraj20009/vajra-os/actions/workflows/build.yml"><img src="https://github.com/ksraj20009/vajra-os/actions/workflows/build.yml/badge.svg" alt="Custom Kernel"></a>
 </p>
 
 ---
