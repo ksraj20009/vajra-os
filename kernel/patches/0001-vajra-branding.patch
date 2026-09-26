@@ -1,6 +1,6 @@
 # Vajra OS Kernel Branding Patch
 # Adds "Vajra OS 1.0" to the kernel banner and exports vajra_os_version.
-# Applied on top of torvalds/linux v6.10.
+# Applied on top of torvalds/linux v6.12.
 
 diff --git a/init/version.c b/init/version.c
 index 94c96f6fbfe6a277b79c02070620949b5bfa566b..03cde4a4cdaa5d897c2bf1948f94618e1c111fab 100644

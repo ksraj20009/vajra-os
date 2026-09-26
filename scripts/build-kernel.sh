@@ -7,7 +7,7 @@
 # the standalone kernel artifact and the kernel inside the ISO are always
 # built from the same source, patch and config.
 #
-# Builds torvalds/linux v6.10 with:
+# Builds torvalds/linux v6.12 with:
 #   - kernel/patches/*.patch    (Vajra branding, exports vajra_os_version)
 #   - kernel/configs/vajra.config (hardening + all live-ISO drivers builtin)
 #
@@ -15,7 +15,7 @@
 #   <output-dir>/vajra-kernel-x86_64       - the bzImage
 #   <output-dir>/modules/lib/modules/...   - full module set (for the tarball)
 #
-# The kernel release is 6.10.0-vajra (the patch is committed inside the
+# The kernel release is 6.12.0-vajra (the patch is committed inside the
 # clone so setlocalversion does not append "-dirty").
 # ============================================================================
 set -euo pipefail
@@ -27,8 +27,8 @@ OUT="$(cd "$OUT" && pwd)"
 
 # --- 1. Source ---------------------------------------------------------------
 if [ ! -d "$ROOT/kernel/linux" ]; then
-  echo "[1/4] Cloning torvalds/linux v6.10 (depth 1)..."
-  git clone --depth=1 --branch v6.10 https://github.com/torvalds/linux.git \
+  echo "[1/4] Cloning torvalds/linux v6.12 (depth 1)..."
+  git clone --depth=1 --branch v6.12 https://github.com/torvalds/linux.git \
     "$ROOT/kernel/linux"
 fi
 cd "$ROOT/kernel/linux"
@@ -42,7 +42,7 @@ for patch in "$ROOT"/kernel/patches/*.patch; do
     echo "  [!] skipped: $(basename "$patch")"
   fi
 done
-# commit so the kernel release is a clean "6.10.0-vajra" (no -dirty suffix)
+# commit so the kernel release is a clean "6.12.0-vajra" (no -dirty suffix)
 git add -A
 git -c user.email=ci@vajra-os.org -c user.name="Vajra CI" \
   commit -qm "vajra: branding patch + config applied" || true

@@ -69,7 +69,7 @@ jobs:
           for marker in ["VAJRA OS 1.0", "Dharmo Rakshati Rakshitah"]:
               assert marker in out, f"BOOT TEST FAILED: missing {marker!r}"
           assert "-vajra" in out, "BOOT TEST FAILED: custom kernel version string not in uname -r"
-          print("[+] CUSTOM KERNEL BOOT TEST PASSED - v6.10-vajra boots to the Vajra OS shell")
+          print("[+] CUSTOM KERNEL BOOT TEST PASSED - v6.12-vajra boots to the Vajra OS shell")
           EOF
 
       - name: Upload kernel artifact
