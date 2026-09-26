@@ -24,10 +24,10 @@ python3 iso/boot-test.py --iso vajra-os-1.0-amd64.iso
 
 ## The Custom Kernel
 
-The release ISO boots Vajra OS's **own kernel** — Linux 6.10 built from
+The release ISO boots Vajra OS's **own kernel** — Linux 6.12 (LTS) built from
 torvalds/linux with the Vajra branding patch and the hardened
 `kernel/configs/vajra.config` (all live-system drivers compiled in, so the
-ISO needs no module set). `uname -r` reports `6.10.0-vajra+` (the trailing
+ISO needs no module set). `uname -r` reports `6.12.0-vajra+` (the trailing
 `+` is Kbuild's marker for a locally-built tree).
 
 ```bash
@@ -72,7 +72,7 @@ python3 iso/boot-test.py
 
 ### What the build does
 
-1. Kernel: custom 6.10.0-vajra (built by `scripts/build-kernel.sh`) or the
+1. Kernel: custom 6.12.0-vajra (built by `scripts/build-kernel.sh`) or the
    Alpine 6.6.142 fallback
 2. Downloads BusyBox (396 Unix commands)
 3. Downloads all 280 Vajra utility scripts + 14 core tools from the repo
@@ -140,7 +140,7 @@ sudo apt install vajra-core vajra-security-center vajra-control-center
 
 | Component | Count | Size |
 |-----------|-------|------|
-| Vajra kernel 6.10.0-vajra | 1 | ~15 MB |
+| Vajra kernel 6.12.0-vajra | 1 | ~15 MB |
 | Kernel modules | builtin | — |
 | BusyBox applets | 396 | 1.4 MB |
 | Vajra core tools | 14 | 200 KB |
@@ -166,7 +166,7 @@ All four boot paths are verified in CI by actually booting them in QEMU
 
 ```
 vajra-os-1.0-amd64.iso
-├── /vmlinuz              — Vajra custom kernel 6.10.0-vajra
+├── /vmlinuz              — Vajra custom kernel 6.12.0-vajra
 ├── /initramfs.cpio.gz    — Root filesystem
 │   ├── /bin/             — BusyBox (396 applets)
 │   ├── /usr/bin/         — 14 core tools + vajra-install + vajra-tools + Buddhi AI

@@ -18,7 +18,7 @@ anything is published (iso/boot-test.py, 4 tests):
 
 Inside the ISO:
 
-  - Custom Vajra kernel 6.10.0-vajra+ — Linux 6.10 from torvalds/linux
+  - Custom Vajra kernel 6.12.0-vajra+ — Linux 6.12 (LTS) from torvalds/linux
     with the Vajra branding patch (exports vajra_os_version) and the
     hardened kernel/configs/vajra.config; every live-system driver
     (virtio, e1000/e1000e, NVMe, AHCI, USB storage, ext4/vfat/iso9660,
