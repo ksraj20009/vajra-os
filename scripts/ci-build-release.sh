@@ -22,6 +22,11 @@ sudo apt-get install -y -qq dpkg-dev debhelper devscripts gnupg apt-utils binuti
   build-essential libncurses-dev bison flex libssl-dev libelf-dev bc kmod \
   || fail "could not install build dependencies"
 
+# --- 1b. Test suite: syntax of every source file + core-tool smoke tests ---
+# A file with a syntax error, or a core tool that crashes on startup,
+# fails the release build before anything is built or published.
+sudo python3 tests/run-tests.py || fail "test suite failed"
+
 # --- 2. APT signing key: persistent (VAJRA_APT_GPG_KEY secret) or ephemeral --
 export GNUPGHOME="$(mktemp -d)"
 echo "$GNUPGHOME" > /tmp/gnupghome

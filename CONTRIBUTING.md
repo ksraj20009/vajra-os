@@ -29,7 +29,10 @@ cd vajra-os
 ### Build and test locally
 
 ```bash
-# Lint / syntax-check what you changed
+# Full test suite (syntax of every source file + core-tool smoke tests)
+sudo python3 tests/run-tests.py
+
+# Or just syntax-check what you changed
 python3 -m py_compile core/<tool>.py
 bash -n scripts/<script>.sh
 
