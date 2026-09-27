@@ -187,5 +187,6 @@ vajra-os-1.0-amd64.iso
 |----------|--------------|
 | `build-release.yml` | Full release: 10 .deb packages, custom kernel, ISO (all 4 boot tests), rootfs, APT repo publish |
 | `build.yml` | Standalone custom-kernel build + QEMU boot test → `vajra-kernel.tar.gz` |
+| `verify-downloads.yml` | Verifies the published downloads from outside: APT repo install on stock Ubuntu, Docker rootfs import + run, all release asset checksums |
 
 (c) 2026 Vajra OS Project

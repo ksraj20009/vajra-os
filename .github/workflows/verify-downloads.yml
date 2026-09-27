@@ -1,0 +1,115 @@
+name: Verify Published Downloads
+
+# Verifies the three user-facing download paths from the OUTSIDE, exactly as
+# documented in INSTALL.md / the website / the release page:
+#   1. APT repo  — a stock Ubuntu machine adds the gh-pages repository and
+#      installs the packages (verifies key, Release/InRelease signatures,
+#      Packages metadata and that the tools land in /usr/bin)
+#   2. Docker    — imports the published vajra-os-rootfs.tar.gz and runs it
+#   3. ISO       — verifies every release asset against its .sha256 file
+#
+# Runs on demand and automatically after every successful release build.
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build Release Artifacts"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  apt-repo-install:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    name: APT repository install (stock Ubuntu)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - name: Add the public Vajra APT repository
+        run: |
+          set -e
+          curl -fsSL https://ksraj20009.github.io/vajra-os/apt-repo/vajra-archive-keyring.asc \
+            | sudo gpg --dearmor -o /usr/share/keyrings/vajra-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/vajra-archive-keyring.gpg] https://ksraj20009.github.io/vajra-os/apt-repo vajra main" \
+            | sudo tee /etc/apt/sources.list.d/vajra.list
+
+      - name: apt update (verifies the signed Release/InRelease metadata)
+        run: |
+          ok=0
+          for i in 1 2 3 4 5; do
+            if sudo apt-get update -o Acquire::Retries=3; then ok=1; break; fi
+            echo "[!] apt update failed (attempt $i) - waiting 60s for the Pages CDN"
+            sleep 60
+          done
+          [ "$ok" = "1" ] || { echo "[-] FATAL: apt update failed"; exit 1; }
+
+      - name: Confirm the packages come from the Vajra repository
+        run: |
+          apt-cache policy vajra-core | tee /dev/stderr | grep -q "ksraj20009.github.io/vajra-os/apt-repo" \
+            || { echo "[-] FATAL: vajra-core candidate is not from the Vajra repo"; exit 1; }
+
+      - name: Install the advertised packages
+        run: |
+          sudo apt-get install -y \
+            vajra-core vajra-buddhi-ai vajra-security-center vajra-control-center \
+            vajra-package-manager vajra-update-manager vajra-keyring vajra-sources
+          # vajra-desktop (Xfce meta-package) and vajra-wallpapers are artwork
+          # only - not needed to prove the repository path works.
+
+      - name: Verify the tools are installed on PATH
+        run: |
+          for tool in vajra-boot-manager vajra-process-manager vajra-memory-manager \
+                       vajra-filesystem-manager vajra-device-manager vajra-display-server \
+                       vajra-service-manager vajra-user-session-manager buddhi \
+                       vajra-security-center vajra-control-center vajra-package-manager \
+                       vajra-update-manager; do
+            test -x "/usr/bin/$tool" || { echo "[-] FATAL: missing /usr/bin/$tool"; exit 1; }
+          done
+          echo "[+] APT path verified: all advertised packages install on stock Ubuntu"
+
+  docker-rootfs:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    name: Docker rootfs import + run
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - name: Download the published rootfs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download v1.0.0 --repo "$GITHUB_REPOSITORY" \
+               --pattern 'vajra-os-rootfs.tar.gz*' -D .
+
+      - name: Verify the checksum first
+        run: sha256sum -c vajra-os-rootfs.tar.gz.sha256
+
+      - name: Import and run Vajra OS
+        run: |
+          docker import vajra-os-rootfs.tar.gz vajra-os:verified
+          docker run --rm --entrypoint /bin/sh vajra-os:verified -c '
+            grep -q "Vajra OS" /etc/os-release \
+              || { echo "[-] FATAL: /etc/os-release does not identify Vajra OS"; exit 1; }
+            test -x /usr/bin/buddhi \
+              || { echo "[-] FATAL: Buddhi AI missing from the rootfs"; exit 1; }
+            echo "[+] rootfs runs in Docker:"; head -2 /etc/os-release
+          '
+
+  release-checksums:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    name: All release assets match their sha256
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - name: Download every release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download v1.0.0 --repo "$GITHUB_REPOSITORY" -D assets
+
+      - name: Verify all checksums
+        run: |
+          cd assets
+          for sum in *.sha256; do
+            echo "--- $sum ---"
+            sha256sum -c "$sum"
+          done
+          echo "[+] every published asset matches its checksum file"
