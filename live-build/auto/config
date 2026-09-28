@@ -10,10 +10,13 @@
 # Usage:   cd live-build && lb config && sudo lb build
 # In CI:   scripts/build-desktop-iso.sh (runs this inside a Debian trixie
 #          container — live-build needs a Debian host and root)
+#
+# "noauto" as the first argument is the live-build convention that stops
+# lb config from re-executing this script (otherwise it recurses forever).
 # ============================================================================
 set -e
 
-lb config \
+lb config noauto \
     --distribution trixie \
     --architecture amd64 \
     --archive-areas "main contrib non-free non-free-firmware" \
@@ -29,7 +32,7 @@ lb config \
     --win32-loader false \
     --security true \
     --updates true \
-    --bootappend-live "boot=live components locales=en_IN.UTF-8 keyboard-layouts=us username=vajra user-fullname=Vajra hostname=vajra-os timezone=Asia/Kolkata"
+    --bootappend-live "boot=live components locales=en_IN.UTF-8 keyboard-layouts=us username=vajra user-fullname=Vajra hostname=vajra-os timezone=Asia/Kolkata" "$@"
 
 echo "[Vajra OS] live-build configuration complete."
 echo "[Vajra OS] Build with: sudo lb build   (or scripts/build-desktop-iso.sh)"
