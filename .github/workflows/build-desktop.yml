@@ -1,0 +1,79 @@
+name: Desktop ISO Build
+
+# Builds the full Vajra OS DESKTOP ISO (Debian trixie + Xfce + Calamares +
+# the Vajra tools from the project's signed APT repository + Buddhi AI),
+# verifies its contents, and publishes it to the v1.0.0 release.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'live-build/**'
+      - 'scripts/build-desktop-iso.sh'
+
+permissions:
+  contents: write
+
+jobs:
+  build-desktop-iso:
+    name: Build + verify the Desktop ISO
+    runs-on: ubuntu-22.04
+    timeout-minutes: 240
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build the Desktop ISO (live-build in Debian trixie)
+        run: bash scripts/build-desktop-iso.sh vajra-desktop-out
+
+      - name: Verify the ISO contents
+        run: |
+          set -e
+          ISO="vajra-desktop-out/vajra-os-1.0-desktop-amd64.iso"
+          test -s "$ISO" || { echo "[-] FATAL: ISO missing"; exit 1; }
+          echo "[+] ISO size: $(du -h "$ISO" | cut -f1)"
+          file "$ISO" | tee /dev/stderr | grep -qiE "boot record|cd-rom"
+
+          sudo apt-get install -y -qq squashfs-tools >/dev/null
+          sudo mkdir -p /mnt/vajra-iso
+          sudo mount -o loop "$ISO" /mnt/vajra-iso
+          ls /mnt/vajra-iso/live/ || true
+          sudo unsquashfs -l /mnt/vajra-iso/live/filesystem.squashfs > /tmp/sqfs-list.txt
+          sudo umount /mnt/vajra-iso
+
+          for f in \
+            "usr/bin/calamares" \
+            "usr/bin/xfce4-session" \
+            "usr/bin/vajra-control-center" \
+            "usr/bin/vajra-security-center" \
+            "usr/bin/vajra-app-store" \
+            "usr/bin/vajra-update-manager" \
+            "usr/bin/buddhi" \
+            "opt/vajra/ai/buddhi-ai.py" \
+            "etc/vajra"; do
+            grep -q "$f$" /tmp/sqfs-list.txt \
+              || { echo "[-] FATAL: $f missing from the desktop ISO"; exit 1; }
+          done
+          grep -q "usr/share/backgrounds/vajra" /tmp/sqfs-list.txt \
+            || { echo "[-] FATAL: Vajra wallpaper missing"; exit 1; }
+          echo "[+] desktop ISO content verified: installer, Xfce, all Vajra tools, Buddhi AI"
+
+      - name: Verify the checksum
+        run: cd vajra-desktop-out && sha256sum -c vajra-os-1.0-desktop-amd64.iso.sha256
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vajra-desktop-iso
+          path: vajra-desktop-out/vajra-os-1.0-desktop-amd64.iso
+          retention-days: 14
+
+      - name: Publish to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload v1.0.0 \
+            vajra-desktop-out/vajra-os-1.0-desktop-amd64.iso \
+            vajra-desktop-out/vajra-os-1.0-desktop-amd64.iso.sha256 \
+            --clobber --repo "$GITHUB_REPOSITORY"
+          echo "[+] vajra-os-1.0-desktop-amd64.iso published to the v1.0.0 release"

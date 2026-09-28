@@ -11,7 +11,7 @@ locales
 console-setup
 keyboard-configuration
 
-# === Desktop Environment ===
+# === Desktop Environment (Xfce + LightDM) ===
 xfce4
 xfce4-terminal
 xfce4-panel
@@ -19,6 +19,7 @@ xfce4-session
 xfce4-settings
 xfce4-appfinder
 xfce4-whiskermenu-plugin
+xfce4-screenshooter
 thunar
 thunar-volman
 lightdm
@@ -61,10 +62,8 @@ ibus-m17n
 im-config
 locales
 
-# === Audio ===
+# === Audio (PipeWire from the base list provides pulseaudio compat) ===
 alsa-utils
-pulseaudio
-pavucontrol
 
 # === Package Management ===
 apt
@@ -83,24 +82,22 @@ fdisk
 # === Installer ===
 calamares
 
-# === Vajra OS Packages (from our repo) ===
-# These will be installed from the Vajra APT repo
-# vajra-core
-# vajra-buddhi-ai
-# vajra-security-center
-# vajra-control-center
-# vajra-package-manager
-# vajra-update-manager
-# vajra-keyring
-# vajra-desktop
-# vajra-wallpapers
+# === Vajra OS Packages (from the project's signed APT repository) ===
+vajra-core
+vajra-buddhi-ai
+vajra-security-center
+vajra-control-center
+vajra-package-manager
+vajra-update-manager
+vajra-keyring
+vajra-desktop
+vajra-wallpapers
+vajra-sources
 
 # === Media ===
 mpv
-vlc
 ffmpeg
 gimp
-libreoffice
 
 # === Development ===
 python3

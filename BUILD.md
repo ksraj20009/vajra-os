@@ -114,6 +114,21 @@ docker build -t vajra-os:1.0 -f docker/Dockerfile.vajra .
 docker run -it vajra-os:1.0
 ```
 
+## Building the Desktop ISO
+
+The full desktop ISO (Debian trixie + Xfce + Calamares installer + the
+Vajra tools pulled from the project's signed APT repository + Buddhi AI)
+is built with live-build inside a Debian trixie container:
+
+```bash
+scripts/build-desktop-iso.sh vajra-desktop-out
+# → vajra-desktop-out/vajra-os-1.0-desktop-amd64.iso
+```
+
+Requires Docker on the build machine. CI runs the same script
+(`build-desktop.yml`), verifies the ISO contents (installer, Xfce, all
+Vajra tools, Buddhi AI) and publishes it to the release.
+
 ## APT Repository
 
 The APT repository is published to the `gh-pages` branch (`apt-repo/`), and
@@ -188,5 +203,6 @@ vajra-os-1.0-amd64.iso
 | `build-release.yml` | Full release: 10 .deb packages, custom kernel, ISO (all 4 boot tests), rootfs, APT repo publish |
 | `build.yml` | Standalone custom-kernel build + QEMU boot test → `vajra-kernel.tar.gz` |
 | `verify-downloads.yml` | Verifies the published downloads from outside: APT repo install on stock Ubuntu, Docker rootfs import + run, all release asset checksums |
+| `build-desktop.yml` | Full desktop ISO (live-build): Debian trixie + Xfce + Calamares + Vajra tools from the signed APT repo; content-verified, published to the release |
 
 (c) 2026 Vajra OS Project

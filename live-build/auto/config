@@ -2,27 +2,34 @@
 # ============================================================================
 # Vajra OS (वज्र OS) — live-build configuration
 # ============================================================================
-# This script configures live-build to create a bootable Vajra OS ISO.
-# It defines the base distribution, packages, desktop, and branding.
+# Configures live-build to create the bootable Vajra OS DESKTOP ISO:
+# Debian trixie base, Xfce desktop, Calamares installer, the Vajra tools
+# from the project's own signed APT repository (config/archives/),
+# Buddhi AI, and the full branding suite (config/hooks/).
 #
-# Usage: cd live-build && lb config
+# Usage:   cd live-build && lb config && sudo lb build
+# In CI:   scripts/build-desktop-iso.sh (runs this inside a Debian trixie
+#          container — live-build needs a Debian host and root)
 # ============================================================================
 set -e
 
-# --- Base distribution ---
-# Built on Debian Trixie (testing) for modern packages
 lb config \
     --distribution trixie \
     --architecture amd64 \
     --archive-areas "main contrib non-free non-free-firmware" \
-    --debian-installer live \
-    --debian-installer-gui true \
-    --iso-volume "Vajra OS 1.0" \
-    --iso-publisher "Vajra OS Project; https://vajra-os.org; packages@vajra-os.org" \
-    --iso-application "Vajra OS (वज्र OS) — India's Privacy-First AI-Powered Operating System" \
-    --bootappend-live "boot=live components locales=en_IN.UTF-8 keyboard-layouts=us username=vajra user-fullname=Vajra hostname=vajra-os timezone=Asia/Kolkata" \
+    --debian-installer none \
+    --iso-volume "Vajra OS 1.0 Desktop" \
+    --iso-publisher "Vajra OS Project; https://github.com/ksraj20009/vajra-os" \
+    --iso-application "Vajra OS (वज्र OS) 1.0 — India's Privacy-First AI-Powered Desktop OS" \
+    --parent-mirror-bootstrap "https://deb.debian.org/debian" \
+    --parent-mirror-chroot "https://deb.debian.org/debian" \
+    --parent-mirror-binary "https://deb.debian.org/debian" \
+    --apt-source-indices false \
+    --firmware-chroot true \
+    --win32-loader false \
     --security true \
-    --updates true
+    --updates true \
+    --bootappend-live "boot=live components locales=en_IN.UTF-8 keyboard-layouts=us username=vajra user-fullname=Vajra hostname=vajra-os timezone=Asia/Kolkata"
 
 echo "[Vajra OS] live-build configuration complete."
-echo "[Vajra OS] Run: sudo lb build"
+echo "[Vajra OS] Build with: sudo lb build   (or scripts/build-desktop-iso.sh)"
