@@ -4,49 +4,36 @@ on:
   workflow_dispatch:
 
 jobs:
-  diagnose-trixie-apt:
+  diagnose-lb-chroot:
     runs-on: ubuntu-22.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
-      - name: Pinpoint the trusted.gpg.d form that sqv accepts
+      - uses: actions/checkout@v4
+
+      - name: Run live-build and autopsy the chroot on failure
         run: |
-          docker run --rm debian:trixie bash -exc '
+          docker run --privileged --rm -v "$PWD/live-build:/lb" debian:trixie bash -exc '
             export DEBIAN_FRONTEND=noninteractive HOME=/root
             apt-get update -qq
-            apt-get install -y -qq gnupg wget ca-certificates >/dev/null
-            cd /tmp
-            wget -qO key.asc https://raw.githubusercontent.com/ksraj20009/vajra-os/gh-pages/apt-repo/vajra-archive-keyring.asc
-            wget -qO InRelease https://ksraj20009.github.io/vajra-os/apt-repo/dists/vajra/InRelease
-            echo "===== apt + sqv versions ====="
-            dpkg-query -W apt sqv sequoia-openpgp 2>&1 || true
-            echo "===== sequoia policy config ====="
-            cat /usr/share/apt/default-sequoia.config 2>/dev/null || echo "(no default-sequoia.config)"
-            echo "deb https://ksraj20009.github.io/vajra-os/apt-repo vajra main" > /etc/apt/sources.list.d/vajra.list
-
-            run_update() {
-              rm -rf /var/lib/apt/lists/*
-              apt-get update -o Acquire::Retries=0 2>&1 | grep -E "vajra|Err|sqv|not signed" | head -6
-              return ${PIPESTATUS[0]}
-            }
-
-            echo "===== TEST A: armored .asc named vajra.key.chroot.asc (live-build form) ====="
-            mkdir -p /etc/apt/trusted.gpg.d
-            cp key.asc /etc/apt/trusted.gpg.d/vajra.key.chroot.asc
-            run_update; echo "TEST-A exit: $?"
-
-            echo "===== TEST A2: armored .asc with simple name ====="
-            rm -f /etc/apt/trusted.gpg.d/*
-            cp key.asc /etc/apt/trusted.gpg.d/vajra.asc
-            run_update; echo "TEST-A2 exit: $?"
-
-            echo "===== TEST B: dearmored .gpg (the form that passed before) ====="
-            rm -f /etc/apt/trusted.gpg.d/*
-            gpg --dearmor < key.asc > /etc/apt/trusted.gpg.d/vajra.gpg
-            run_update; echo "TEST-B exit: $?"
-
-            echo "===== TEST C: sqv directly, both forms ====="
-            rm -rf /var/lib/apt/lists/*
-            (sqv --keyring /etc/apt/trusted.gpg.d/vajra.gpg InRelease && echo "sqv accepts dearmored .gpg") || true
-            (sqv --keyring key.asc InRelease && echo "sqv accepts armored .asc") || true
-            echo "DEBUG-DONE"
+            apt-get install -y -qq live-build debootstrap gnupg wget ca-certificates >/dev/null
+            cd /lb
+            lb config
+            echo "===== running lb build ====="
+            lb build --verbose > /tmp/lb.log 2>&1 || echo "BUILD FAILED (expected for diagnostics)"
+            grep -n "not bound\|not signed\|E: " /tmp/lb.log | head -10 || true
+            echo "===== chroot state ====="
+            ls -la chroot/etc/apt/trusted.gpg.d/ 2>/dev/null || echo "(no chroot)"
+            echo "--- sources ---"
+            ls chroot/etc/apt/sources.list.d/ 2>/dev/null || true
+            cat chroot/etc/apt/sources.list.d/*.list 2>/dev/null || true
+            echo "--- key checksums (chroot vs repo) ---"
+            sha256sum chroot/etc/apt/trusted.gpg.d/vajra* config/archives/vajra.key.chroot 2>/dev/null
+            echo "--- chroot apt/sqv versions ---"
+            chroot chroot dpkg-query -W apt sqv sequoia-openpgp 2>&1 || true
+            echo "===== sqv verdict INSIDE the chroot ====="
+            wget -qO chroot/tmp/InRelease https://ksraj20009.github.io/vajra-os/apt-repo/dists/vajra/InRelease
+            chroot chroot sqv --keyring /etc/apt/trusted.gpg.d/vajra.key.chroot.asc --output /dev/null /tmp/InRelease 2>&1 | head -8 || true
+            echo "===== apt update INSIDE the chroot, manually ====="
+            chroot chroot apt-get update 2>&1 | grep -E "vajra|Err|sqv|not signed" | head -8 || true
+            echo "DIAG-DONE"
           '
