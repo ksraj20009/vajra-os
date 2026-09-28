@@ -40,8 +40,18 @@ for loc in hi_IN.UTF-8 ta_IN.UTF-8 bn_IN.UTF-8 en_IN.UTF-8; do
 done
 locale-gen || true
 
-# Create vajra user
-useradd -m -s /bin/bash -G sudo,netdev,audio,video,plugdev vajra 2>/dev/null || true
+# Create vajra user. Group memberships are added one by one and only for
+# groups that actually exist - trixie dropped some legacy groups (e.g.
+# plugdev), and useradd -G with a missing group fails, which silently
+# skipped user creation in earlier runs.
+if ! id vajra >/dev/null 2>&1; then
+    useradd -m -s /bin/bash vajra
+fi
+for grp in sudo netdev audio video plugdev users; do
+    if getent group "$grp" >/dev/null 2>&1; then
+        usermod -aG "$grp" vajra || true
+    fi
+done
 # Set the live-user password without going through PAM (chpasswd fails
 # inside the live-build chroot with pam_chauthtok errors); this is the
 # SHA-512 hash of "vajra".
