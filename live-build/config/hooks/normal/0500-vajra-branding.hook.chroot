@@ -45,7 +45,9 @@ locale-gen || true
 # plugdev), and useradd -G with a missing group fails, which silently
 # skipped user creation in earlier runs.
 if ! id vajra >/dev/null 2>&1; then
-    useradd -m -s /bin/bash vajra
+    # hook 0200 already created the "vajra" group; use it as the
+    # primary group or useradd refuses ("group vajra exists ... use -g")
+    useradd -m -s /bin/bash -g vajra vajra
 fi
 for grp in sudo netdev audio video plugdev users; do
     if getent group "$grp" >/dev/null 2>&1; then
