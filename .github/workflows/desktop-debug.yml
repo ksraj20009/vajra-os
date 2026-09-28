@@ -1,0 +1,50 @@
+name: Desktop Debug
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose-trixie-apt:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - name: Reproduce the chroot apt failure in Debian trixie
+        run: |
+          docker run --rm debian:trixie bash -exc '
+            export DEBIAN_FRONTEND=noninteractive HOME=/root
+            apt-get update -qq
+            apt-get install -y -qq gnupg wget ca-certificates apt-utils >/dev/null
+            echo "===== gpg version ====="; gpg --version | head -1
+            cd /tmp
+            wget -qO key.asc https://raw.githubusercontent.com/ksraj20009/vajra-os/gh-pages/apt-repo/vajra-archive-keyring.asc
+            wget -qO InRelease https://ksraj20009.github.io/vajra-os/apt-repo/dists/vajra/InRelease
+            echo "===== key packets (self-sig digest + timestamps) ====="
+            gpg --list-packets key.asc | sed -n "1,25p"
+            echo "===== apt update against the vajra repo (as the ISO build does) ====="
+            gpg --dearmor < key.asc > /etc/apt/trusted.gpg.d/vajra.gpg
+            echo "deb https://ksraj20009.github.io/vajra-os/apt-repo vajra main" > /etc/apt/sources.list.d/vajra.list
+            apt-get update 2>&1 | tail -25 || true
+            echo "===== sq / sqv inspection (if available) ====="
+            apt-get install -y -qq sequoia-sq sqv >/dev/null 2>&1 || apt-get install -y -qq sequoia-sq sequoia-sqv >/dev/null 2>&1 || true
+            (sq inspect --certifications key.asc 2>&1 || true) | head -40
+            echo "===== sqv direct verify (if available) ====="
+            gpg --dearmor < key.asc > key.gpg
+            (sqv --keyring key.gpg InRelease 2>&1 || true) | head -10
+            echo "===== control: fresh modern gpg key + self-signed Release, sqv verdict ====="
+            export GNUPGHOME=$(mktemp -d)
+            cat > ks <<KEYEOF
+            %no-protection
+            Key-Type: RSA
+            Key-Length: 3072
+            Name-Real: Test Key
+            Name-Email: test@example.com
+            Expire-Date: 0
+            %commit
+            KEYEOF
+            gpg --batch --gen-key ks >/dev/null 2>&1
+            gpg --export test@example.com > test.gpg
+            printf "Suite: vajra\n" > Release.test
+            gpg --batch --yes --detach-sign --local-user test@example.com -o Release.test.gpg Release.test
+            (sqv --keyring test.gpg --signature Release.test.gpg Release.test 2>&1 || true) | head -5
+            echo "DEBUG-DONE"
+          '
