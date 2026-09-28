@@ -31,15 +31,21 @@ OSREL
 echo "LANG=en_IN.UTF-8" > /etc/default/locale
 echo "LC_ALL=en_IN.UTF-8" >> /etc/default/locale
 
-# Generate Indian locales
+# Generate Indian locales (append guarded entries; the sed-uncomment
+# approach produced malformed entries on trixie's /etc/locale.gen)
 for loc in hi_IN.UTF-8 ta_IN.UTF-8 bn_IN.UTF-8 en_IN.UTF-8; do
-    sed -i "s/# $loc/$loc/" /etc/locale.gen 2>/dev/null || echo "$loc UTF-8" >> /etc/locale.gen
+    if ! grep -q "^$loc " /etc/locale.gen 2>/dev/null; then
+        echo "$loc UTF-8" >> /etc/locale.gen
+    fi
 done
-locale-gen 2>/dev/null || true
+locale-gen || true
 
 # Create vajra user
 useradd -m -s /bin/bash -G sudo,netdev,audio,video,plugdev vajra 2>/dev/null || true
-echo "vajra:vajra" | chpasswd
+# Set the live-user password without going through PAM (chpasswd fails
+# inside the live-build chroot with pam_chauthtok errors); this is the
+# SHA-512 hash of "vajra".
+usermod -p '$6$eLRU9chm7OQMQgo1$.Cdd7PYdZQSikzqQ7AeXeKHApiQX3FKUdWUp6ZWeSf4UONOXf7NQiB4mY9Z6ZvYkOUpG/XnV6ZMl.kVEd61Gm1' vajra
 
 # Create vajra mode groups
 groupadd -f vajra-beginner
