@@ -4,42 +4,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  diagnose-lb-chroot:
+  diagnose-key:
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Diff the crypto policy between container and chroot
+      - name: sqv verdict on our key, unfiltered
         run: |
-          docker run --privileged --rm -v "$PWD/live-build:/lb" debian:trixie bash -exc '
+          docker run --rm debian:trixie bash -exc '
             export DEBIAN_FRONTEND=noninteractive HOME=/root
             apt-get update -qq
-            apt-get install -y -qq live-build debootstrap gnupg wget ca-certificates >/dev/null
-            cd /lb
-            lb config
-            lb build --verbose > /tmp/lb.log 2>&1 || echo "build failed (expected)"
-            echo "===== where in lb.log it failed ====="
-            sed -n "860,905p" /tmp/lb.log
-            echo "===== container vs chroot: crypto-policies ====="
-            echo "--- container /etc/crypto-policies/back-ends/ ---"
-            ls -la /etc/crypto-policies/back-ends/ 2>&1 || echo "(dir missing)"
-            cat /etc/crypto-policies/back-ends/apt-sequoia.config 2>/dev/null || echo "(no override in container)"
-            echo "--- chroot /etc/crypto-policies/back-ends/ ---"
-            ls -la chroot/etc/crypto-policies/back-ends/ 2>&1 || echo "(dir missing)"
-            cat chroot/etc/crypto-policies/back-ends/apt-sequoia.config 2>/dev/null || echo "(no override in chroot)"
-            echo "===== chroot /etc/apt/apt.conf.d/ ====="
-            ls chroot/etc/apt/apt.conf.d/
-            grep -r "" chroot/etc/apt/apt.conf.d/ 2>/dev/null | head -30
-            echo "===== sqv flags ====="
-            chroot chroot sqv --help 2>&1 | head -25
-            echo "===== sqv verdicts ====="
-            wget -qO chroot/tmp/InRelease https://ksraj20009.github.io/vajra-os/apt-repo/dists/vajra/InRelease
-            echo "--- sqv in CHROOT, cleartext, no time:"
-            chroot chroot sqv --keyring /etc/apt/trusted.gpg.d/vajra.key.chroot.asc --cleartext --output /dev/null /tmp/InRelease 2>&1 | head -6; echo "exit=$?"
-            echo "--- sqv in CHROOT, cleartext, time = InRelease date:"
-            chroot chroot sqv --keyring /etc/apt/trusted.gpg.d/vajra.key.chroot.asc --time 2026-09-27T14:26:45Z --cleartext --output /dev/null /tmp/InRelease 2>&1 | head -6; echo "exit=$?"
-            echo "--- sqv in CONTAINER(host), cleartext, same keyring+file:"
-            sqv --keyring /lb/chroot/etc/apt/trusted.gpg.d/vajra.key.chroot.asc --cleartext --output /dev/null /lb/chroot/tmp/InRelease 2>&1 | head -6; echo "exit=$?"
+            apt-get install -y -qq wget ca-certificates >/dev/null
+            cd /tmp
+            wget -qO key.asc https://raw.githubusercontent.com/ksraj20009/vajra-os/gh-pages/apt-repo/vajra-archive-keyring.asc
+            wget -qO InRelease https://ksraj20009.github.io/vajra-os/apt-repo/dists/vajra/InRelease
+            rm -f out1
+            echo "===== TEST 1: sqv direct on our published key (no gnupg installed) ====="
+            sqv --keyring key.asc --cleartext --output out1 InRelease && echo "SQV-OURKEY: ACCEPTED" || echo "SQV-OURKEY: REJECTED"
+            echo "===== TEST 2: full packet dump of our key (gpg 2.4.7) ====="
+            apt-get install -y -qq gnupg >/dev/null
+            gpg --list-packets key.asc
+            echo "===== TEST 3: gpg import/export roundtrip, then sqv ====="
+            export GNUPGHOME=/tmp/gnupg
+            mkdir -m 700 $GNUPGHOME
+            gpg --batch --import key.asc
+            gpg --batch --export --armor > key2.asc
+            gpg --dearmor < key2.asc > key2.gpg
+            rm -f out2
+            sqv --keyring key2.asc --cleartext --output out2 InRelease && echo "SQV-ROUNDTRIP-ASC: ACCEPTED" || echo "SQV-ROUNDTRIP-ASC: REJECTED"
+            rm -f out2b
+            sqv --keyring key2.gpg --cleartext --output out2b InRelease && echo "SQV-ROUNDTRIP-GPG: ACCEPTED" || echo "SQV-ROUNDTRIP-GPG: REJECTED"
+            echo "===== TEST 4: fresh trixie gpg key, clearsign a test file, sqv ====="
+            gpg --batch --passphrase "" --quick-gen-key "Vajra Test <t@vajra>" rsa3072 default never
+            echo "vajra test payload" > /tmp/t.txt
+            gpg --batch --passphrase "" --pinentry-mode loopback --clearsign /tmp/t.txt
+            gpg --batch --export --armor > key3.asc
+            rm -f out3
+            sqv --keyring key3.asc --cleartext --output out3 /tmp/t.txt.asc && echo "SQV-FRESHKEY: ACCEPTED" || echo "SQV-FRESHKEY: REJECTED"
             echo "DIAG-DONE"
           '
