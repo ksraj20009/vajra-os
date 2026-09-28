@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run live-build and autopsy the chroot on failure
+      - name: Diff the crypto policy between container and chroot
         run: |
           docker run --privileged --rm -v "$PWD/live-build:/lb" debian:trixie bash -exc '
             export DEBIAN_FRONTEND=noninteractive HOME=/root
@@ -18,22 +18,28 @@ jobs:
             apt-get install -y -qq live-build debootstrap gnupg wget ca-certificates >/dev/null
             cd /lb
             lb config
-            echo "===== running lb build ====="
-            lb build --verbose > /tmp/lb.log 2>&1 || echo "BUILD FAILED (expected for diagnostics)"
-            grep -n "not bound\|not signed\|E: " /tmp/lb.log | head -10 || true
-            echo "===== chroot state ====="
-            ls -la chroot/etc/apt/trusted.gpg.d/ 2>/dev/null || echo "(no chroot)"
-            echo "--- sources ---"
-            ls chroot/etc/apt/sources.list.d/ 2>/dev/null || true
-            cat chroot/etc/apt/sources.list.d/*.list 2>/dev/null || true
-            echo "--- key checksums (chroot vs repo) ---"
-            sha256sum chroot/etc/apt/trusted.gpg.d/vajra* config/archives/vajra.key.chroot 2>/dev/null
-            echo "--- chroot apt/sqv versions ---"
-            chroot chroot dpkg-query -W apt sqv sequoia-openpgp 2>&1 || true
-            echo "===== sqv verdict INSIDE the chroot ====="
+            lb build --verbose > /tmp/lb.log 2>&1 || echo "build failed (expected)"
+            echo "===== where in lb.log it failed ====="
+            sed -n "860,905p" /tmp/lb.log
+            echo "===== container vs chroot: crypto-policies ====="
+            echo "--- container /etc/crypto-policies/back-ends/ ---"
+            ls -la /etc/crypto-policies/back-ends/ 2>&1 || echo "(dir missing)"
+            cat /etc/crypto-policies/back-ends/apt-sequoia.config 2>/dev/null || echo "(no override in container)"
+            echo "--- chroot /etc/crypto-policies/back-ends/ ---"
+            ls -la chroot/etc/crypto-policies/back-ends/ 2>&1 || echo "(dir missing)"
+            cat chroot/etc/crypto-policies/back-ends/apt-sequoia.config 2>/dev/null || echo "(no override in chroot)"
+            echo "===== chroot /etc/apt/apt.conf.d/ ====="
+            ls chroot/etc/apt/apt.conf.d/
+            grep -r "" chroot/etc/apt/apt.conf.d/ 2>/dev/null | head -30
+            echo "===== sqv flags ====="
+            chroot chroot sqv --help 2>&1 | head -25
+            echo "===== sqv verdicts ====="
             wget -qO chroot/tmp/InRelease https://ksraj20009.github.io/vajra-os/apt-repo/dists/vajra/InRelease
-            chroot chroot sqv --keyring /etc/apt/trusted.gpg.d/vajra.key.chroot.asc --output /dev/null /tmp/InRelease 2>&1 | head -8 || true
-            echo "===== apt update INSIDE the chroot, manually ====="
-            chroot chroot apt-get update 2>&1 | grep -E "vajra|Err|sqv|not signed" | head -8 || true
+            echo "--- sqv in CHROOT, cleartext, no time:"
+            chroot chroot sqv --keyring /etc/apt/trusted.gpg.d/vajra.key.chroot.asc --cleartext --output /dev/null /tmp/InRelease 2>&1 | head -6; echo "exit=$?"
+            echo "--- sqv in CHROOT, cleartext, time = InRelease date:"
+            chroot chroot sqv --keyring /etc/apt/trusted.gpg.d/vajra.key.chroot.asc --time 2026-09-27T14:26:45Z --cleartext --output /dev/null /tmp/InRelease 2>&1 | head -6; echo "exit=$?"
+            echo "--- sqv in CONTAINER(host), cleartext, same keyring+file:"
+            sqv --keyring /lb/chroot/etc/apt/trusted.gpg.d/vajra.key.chroot.asc --cleartext --output /dev/null /lb/chroot/tmp/InRelease 2>&1 | head -6; echo "exit=$?"
             echo "DIAG-DONE"
           '
