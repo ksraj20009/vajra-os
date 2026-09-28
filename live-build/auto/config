@@ -24,7 +24,7 @@ lb config \
     --parent-mirror-bootstrap "https://deb.debian.org/debian" \
     --parent-mirror-chroot "https://deb.debian.org/debian" \
     --parent-mirror-binary "https://deb.debian.org/debian" \
-    --apt-source-indices false \
+    --source false \
     --firmware-chroot true \
     --win32-loader false \
     --security true \
